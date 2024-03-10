@@ -3,9 +3,9 @@ import { ChatId, MessageId, UserId } from "@/app/contexts/core";
 import { Option } from "@/app/lib/option";
 
 export enum DeliveryStatus {
-  Pending,
-  Sent,
-  Seen,
+  Pending = "Pending",
+  Sent = "Sent",
+  Seen = "Seen",
 }
 
 export type Message = {
