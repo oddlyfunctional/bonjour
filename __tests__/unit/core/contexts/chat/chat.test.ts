@@ -1,8 +1,8 @@
 import { describe, expect, it } from "@jest/globals";
 import { ok, error } from "@/app/lib/result";
 import {
-  create,
-  remove,
+  createChat,
+  deleteChat,
   changeAdmin,
   addMember,
   removeMember,
@@ -14,7 +14,7 @@ describe("Chat", () => {
 
   describe("create", () => {
     it("returns event", () => {
-      expect(create({ name: "some chat" }, userId)).toEqual({
+      expect(createChat({ name: "some chat" }, userId)).toEqual({
         chat: {
           name: "some chat",
           adminId: userId,
@@ -27,7 +27,7 @@ describe("Chat", () => {
   describe("remove", () => {
     it("succeeds", () => {
       expect(
-        remove(
+        deleteChat(
           {
             chat: {
               id: chatId,
@@ -43,7 +43,7 @@ describe("Chat", () => {
 
     it("fails if user is not admin", () => {
       expect(
-        remove(
+        deleteChat(
           {
             chat: {
               id: chatId,

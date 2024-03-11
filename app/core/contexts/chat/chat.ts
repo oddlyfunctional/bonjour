@@ -19,7 +19,7 @@ export type ChatCreated = {
     members: Array<UserId>;
   };
 };
-export const create = (cmd: CreateChat, userId: UserId): ChatCreated => ({
+export const createChat = (cmd: CreateChat, userId: UserId): ChatCreated => ({
   chat: {
     ...cmd,
     adminId: userId,
@@ -27,18 +27,18 @@ export const create = (cmd: CreateChat, userId: UserId): ChatCreated => ({
   },
 });
 
-export type RemoveChat = {
+export type DeleteChat = {
   chat: Chat;
 };
-export type ChatRemoved = {
+export type ChatDeleted = {
   chatId: ChatId;
 };
-export type RemoveChatError = "Unauthorized";
+export type DeleteChatError = "Unauthorized";
 
-export const remove = (
-  cmd: RemoveChat,
+export const deleteChat = (
+  cmd: DeleteChat,
   userId: UserId,
-): Result<ChatRemoved, RemoveChatError> => {
+): Result<ChatDeleted, DeleteChatError> => {
   if (cmd.chat.adminId === userId) {
     return ok({ chatId: cmd.chat.id });
   } else {
@@ -136,8 +136,8 @@ export const removeMember = (
 
 export interface Repository {
   getById: (chatId: ChatId) => Promise<Option<Chat>>;
-  created: (event: ChatCreated) => Promise<ChatId>;
-  removed: (event: ChatRemoved) => Promise<void>;
+  chatCreated: (event: ChatCreated) => Promise<ChatId>;
+  chatDeleted: (event: ChatDeleted) => Promise<void>;
   adminChanged: (event: AdminChanged) => Promise<void>;
   memberAdded: (event: MemberAdded) => Promise<void>;
   memberRemoved: (event: MemberRemoved) => Promise<void>;

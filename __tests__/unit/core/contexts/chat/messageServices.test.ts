@@ -2,7 +2,10 @@ import { describe, expect, it } from "@jest/globals";
 import { mock as mockClock } from "@/app/lib/clock";
 import { ok, error } from "@/app/lib/result";
 import { Option, none, some } from "@/app/lib/option";
-import { send, unsend } from "@/app/core/contexts/chat/messageServices";
+import {
+  sendMessage,
+  unsendMessage,
+} from "@/app/core/contexts/chat/messageServices";
 import {
   DeliveryStatus,
   Message,
@@ -31,15 +34,20 @@ describe("messageServices", () => {
   let mockMessageId = messageId;
   const repository: Repository = {
     getById: async () => mockMessage,
-    sent: async () => mockMessageId,
-    unsent: async () => {},
+    messageSent: async () => mockMessageId,
+    messageUnsent: async () => {},
   };
 
-  describe("send", () => {
+  describe("sendMessage", () => {
     it("succeeds", async () => {
       mockMessageId = messageId + 1;
       expect(
-        await send({ body: "some message", chatId }, userId, repository, clock),
+        await sendMessage(
+          { body: "some message", chatId },
+          userId,
+          repository,
+          clock,
+        ),
       ).toEqual({
         id: mockMessageId,
         chatId: chatId,
@@ -51,17 +59,17 @@ describe("messageServices", () => {
     });
   });
 
-  describe("unsend", () => {
+  describe("unsendMessage", () => {
     it("succeeds", async () => {
       mockMessage = some(message);
-      expect(await unsend(chatId, userId, repository)).toEqual(
+      expect(await unsendMessage(chatId, userId, repository)).toEqual(
         ok({ messageId }),
       );
     });
 
     it("fails if can't find message", async () => {
       mockMessage = none;
-      expect(await unsend(chatId, userId, repository)).toEqual(
+      expect(await unsendMessage(chatId, userId, repository)).toEqual(
         error("MessageNotFound"),
       );
     });

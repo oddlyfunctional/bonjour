@@ -1,7 +1,11 @@
 import { describe, expect, it } from "@jest/globals";
 import { mock as mockClock } from "@/app/lib/clock";
 import { ok, error } from "@/app/lib/result";
-import { DeliveryStatus, send, unsend } from "@/app/core/contexts/chat/message";
+import {
+  DeliveryStatus,
+  sendMessage,
+  unsendMessage,
+} from "@/app/core/contexts/chat/message";
 
 describe("Message", () => {
   const { setNow, clock } = mockClock();
@@ -12,10 +16,10 @@ describe("Message", () => {
   const chatId = 2;
   const userId = 3;
 
-  describe("send", () => {
+  describe("sendMessage", () => {
     it("returns event", () => {
       expect(
-        send(
+        sendMessage(
           {
             body: "some message",
             chatId,
@@ -35,10 +39,10 @@ describe("Message", () => {
     });
   });
 
-  describe("unsend", () => {
+  describe("unsendMessage", () => {
     it("succeeds", () => {
       expect(
-        unsend(
+        unsendMessage(
           {
             message: {
               id: messageId,
@@ -56,7 +60,7 @@ describe("Message", () => {
 
     it("fails if user is not author", () => {
       expect(
-        unsend(
+        unsendMessage(
           {
             message: {
               id: messageId,
@@ -74,7 +78,7 @@ describe("Message", () => {
 
     it("fails if message was seen", () => {
       expect(
-        unsend(
+        unsendMessage(
           {
             message: {
               id: messageId,

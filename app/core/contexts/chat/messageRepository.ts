@@ -35,7 +35,7 @@ export const make = (sql: Sql): Repository => ({
     `,
       schema,
     ),
-  sent: async ({ message }: MessageSent) => {
+  messageSent: async ({ message }: MessageSent) => {
     const { id: messageId } = await sql.insertOne(
       SQL`
       INSERT INTO messages (
@@ -56,7 +56,7 @@ export const make = (sql: Sql): Repository => ({
     );
     return messageId;
   },
-  unsent: async (event: MessageUnsent) => {
+  messageUnsent: async (event: MessageUnsent) => {
     await sql.mutate(SQL`
       DELETE FROM messages
       WHERE id = ${event.messageId}

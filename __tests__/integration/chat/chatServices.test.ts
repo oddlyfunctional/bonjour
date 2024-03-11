@@ -51,16 +51,14 @@ describe("chatServices integration tests", () => {
       chatId: chat.id,
       memberId: newAdmin.id,
     });
-    expect(await chatRepo.getById(chat.id)).toEqual(
-      some({
-        ...chat,
-        members: [user.id, newAdmin.id],
-      }),
-    );
+    (chat.members = [user.id, newAdmin.id]),
+      expect(await chatRepo.getById(chat.id)).toEqual(some(chat));
 
     const adminChanged = await changeAdmin(
-      chat.id,
-      newAdmin.id,
+      {
+        chatId: chat.id,
+        newAdminId: newAdmin.id,
+      },
       user.id,
       chatRepo,
     );
@@ -69,13 +67,8 @@ describe("chatServices integration tests", () => {
       chatId: chat.id,
       adminId: newAdmin.id,
     });
-    expect(await chatRepo.getById(chat.id)).toEqual(
-      some({
-        ...chat,
-        adminId: newAdmin.id,
-        members: [user.id, newAdmin.id],
-      }),
-    );
+    chat.adminId = newAdmin.id;
+    expect(await chatRepo.getById(chat.id)).toEqual(some(chat));
 
     const memberRemoved = await removeMember(
       { chatId: chat.id, memberId: user.id },
@@ -84,13 +77,8 @@ describe("chatServices integration tests", () => {
     );
     if (!memberRemoved.ok) fail(memberRemoved.error);
     expect(memberRemoved.value).toEqual({ chatId: chat.id, memberId: user.id });
-    expect(await chatRepo.getById(chat.id)).toEqual(
-      some({
-        ...chat,
-        adminId: newAdmin.id,
-        members: [newAdmin.id],
-      }),
-    );
+    chat.members = [newAdmin.id];
+    expect(await chatRepo.getById(chat.id)).toEqual(some(chat));
 
     const chatRemoved = await remove(chat.id, newAdmin.id, chatRepo);
     if (!chatRemoved.ok) fail(chatRemoved.error);

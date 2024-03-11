@@ -6,7 +6,7 @@ import {
   AdminChanged,
   Chat,
   ChatCreated,
-  ChatRemoved,
+  ChatDeleted,
   MemberAdded,
   MemberRemoved,
   Repository,
@@ -37,7 +37,7 @@ export const make = (sql: Sql): Repository => ({
     `,
       schema,
     ),
-  created: async ({ chat }: ChatCreated) => {
+  chatCreated: async ({ chat }: ChatCreated) => {
     const { id: chatId } = await sql.insertOne(
       SQL`
       INSERT INTO chats (
@@ -61,7 +61,7 @@ export const make = (sql: Sql): Repository => ({
     await sql.mutate(insertMembersStatement);
     return chatId;
   },
-  removed: async (event: ChatRemoved) => {
+  chatDeleted: async (event: ChatDeleted) => {
     await sql.mutate(SQL`
       DELETE FROM chats
       WHERE id = ${event.chatId}

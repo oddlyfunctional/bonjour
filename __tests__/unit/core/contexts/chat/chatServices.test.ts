@@ -26,8 +26,8 @@ describe("chatServices", () => {
   let mockChatId = chatId;
   const repository: Repository = {
     getById: async () => mockChat,
-    created: async () => mockChatId,
-    removed: async () => {},
+    chatCreated: async () => mockChatId,
+    chatDeleted: async () => {},
     adminChanged: async () => {},
     memberAdded: async () => {},
     memberRemoved: async () => {},
@@ -63,14 +63,22 @@ describe("chatServices", () => {
     it("succeeds", async () => {
       mockChat = some(chat);
       expect(
-        await changeAdmin(chatId, anotherUserId, userId, repository),
+        await changeAdmin(
+          { chatId, newAdminId: anotherUserId },
+          userId,
+          repository,
+        ),
       ).toEqual(ok({ chatId, adminId: anotherUserId }));
     });
 
     it("fails if can't find chat", async () => {
       mockChat = none;
       expect(
-        await changeAdmin(chatId, anotherUserId, userId, repository),
+        await changeAdmin(
+          { chatId, newAdminId: anotherUserId },
+          userId,
+          repository,
+        ),
       ).toEqual(error("ChatNotFound"));
     });
   });

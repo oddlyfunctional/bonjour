@@ -7,25 +7,25 @@ export const create = async (
   userId: UserId,
   repository: Chat.Repository,
 ): Promise<Chat.Chat> => {
-  const event = Chat.create({ name }, userId);
-  const chatId = await repository.created(event);
+  const event = Chat.createChat({ name }, userId);
+  const chatId = await repository.chatCreated(event);
   return {
     ...event.chat,
     id: chatId,
   };
 };
 
-export type RemoveChatError = Chat.RemoveChatError | "ChatNotFound";
+export type RemoveChatError = Chat.DeleteChatError | "ChatNotFound";
 export const remove = async (
   chatId: ChatId,
   userId: UserId,
   repository: Chat.Repository,
-): Promise<Result<Chat.ChatRemoved, RemoveChatError>> => {
+): Promise<Result<Chat.ChatDeleted, RemoveChatError>> => {
   const chat = await repository.getById(chatId);
   if (chat.some) {
-    const event = Chat.remove({ chat: chat.value }, userId);
+    const event = Chat.deleteChat({ chat: chat.value }, userId);
     if (event.ok) {
-      await repository.removed(event.value);
+      await repository.chatDeleted(event.value);
     }
     return event;
   } else {
@@ -35,8 +35,13 @@ export const remove = async (
 
 export type ChangeAdminError = Chat.ChangeAdminError | "ChatNotFound";
 export const changeAdmin = async (
-  chatId: ChatId,
-  newAdminId: UserId,
+  {
+    chatId,
+    newAdminId,
+  }: {
+    chatId: ChatId;
+    newAdminId: UserId;
+  },
   userId: UserId,
   repository: Chat.Repository,
 ): Promise<Result<Chat.AdminChanged, ChangeAdminError>> => {

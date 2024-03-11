@@ -3,12 +3,12 @@ import { create } from "@/app/core/contexts/chat/chatServices";
 import { start } from "@/app/core/startup";
 import * as ChatRepo from "@/app/core/contexts/chat/chatRepository";
 import * as MessageRepo from "@/app/core/contexts/chat/messageRepository";
-import { send, unsend } from "@/app/core/contexts/chat/messageServices";
-import * as Clock from "@/app/lib/clock";
 import {
-  DeliveryStatus,
-  Repository as MessageRepository,
-} from "@/app/core/contexts/chat/message";
+  sendMessage,
+  unsendMessage,
+} from "@/app/core/contexts/chat/messageServices";
+import * as Clock from "@/app/lib/clock";
+import { Repository as MessageRepository } from "@/app/core/contexts/chat/message";
 import { makeUser } from "@/__tests__/factories";
 import { Chat } from "@/app/core/contexts/chat/chat";
 import { Account } from "@/app/core/contexts/account/account";
@@ -41,7 +41,7 @@ describe("messageServices integration tests", () => {
     const { user, chat, msgRepo } = world;
     const now = new Date();
     mockClock.setNow(now);
-    const msg = await send(
+    const msg = await sendMessage(
       { body: "some message", chatId: chat.id },
       user.id,
       msgRepo,
@@ -49,7 +49,7 @@ describe("messageServices integration tests", () => {
     );
     expect(await msgRepo.getById(msg.id)).toEqual(some(msg));
 
-    const unsent = await unsend(msg.id, user.id, msgRepo);
+    const unsent = await unsendMessage(msg.id, user.id, msgRepo);
     if (!unsent.ok) throw new Error(unsent.error);
     expect(unsent.value).toEqual({ messageId: msg.id });
     expect(await msgRepo.getById(msg.id)).toEqual(none);

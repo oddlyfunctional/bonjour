@@ -31,7 +31,7 @@ export type MessageSent = {
     deliveryStatus: DeliveryStatus;
   };
 };
-export const send = (
+export const sendMessage = (
   cmd: SendMessage,
   userId: UserId,
   clock: Clock,
@@ -52,7 +52,7 @@ export type MessageUnsent = {
   messageId: MessageId;
 };
 export type UnsendMessageError = "Unauthorized" | "AlreadySeen";
-export const unsend = (
+export const unsendMessage = (
   cmd: UnsendMessage,
   userId: UserId,
 ): Result<MessageUnsent, UnsendMessageError> => {
@@ -71,6 +71,6 @@ export const unsend = (
 
 export interface Repository {
   getById: (messageId: MessageId) => Promise<Option<Message>>;
-  sent: (event: MessageSent) => Promise<MessageId>;
-  unsent: (event: MessageUnsent) => Promise<void>;
+  messageSent: (event: MessageSent) => Promise<MessageId>;
+  messageUnsent: (event: MessageUnsent) => Promise<void>;
 }
