@@ -71,7 +71,7 @@ export const addMember = async (
 };
 
 export type RemoveMemberError = Chat.RemoveMemberError | "ChatNotFound";
-export const RemoveMember = async (
+export const removeMember = async (
   { chatId, memberId }: { chatId: ChatId; memberId: UserId },
   userId: UserId,
   repository: Chat.Repository,

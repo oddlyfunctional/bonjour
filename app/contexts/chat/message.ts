@@ -1,6 +1,7 @@
 import { Result, ok, error } from "@/app/lib/result";
 import { ChatId, MessageId, UserId } from "@/app/contexts/core";
 import { Option } from "@/app/lib/option";
+import { Clock } from "@/app/lib/clock";
 
 export enum DeliveryStatus {
   Pending = "Pending",
@@ -30,12 +31,16 @@ export type MessageSent = {
     deliveryStatus: DeliveryStatus;
   };
 };
-export const send = (cmd: SendMessage, userId: UserId): MessageSent => ({
+export const send = (
+  cmd: SendMessage,
+  userId: UserId,
+  clock: Clock,
+): MessageSent => ({
   message: {
     chatId: cmd.chatId,
     authorId: userId,
     body: cmd.body,
-    sentAt: new Date(),
+    sentAt: clock.now(),
     deliveryStatus: DeliveryStatus.Pending,
   },
 });
@@ -46,16 +51,13 @@ export type UnsendMessage = {
 export type MessageUnsent = {
   messageId: MessageId;
 };
-export enum UnsendMessageError {
-  Unauthorized,
-  AlreadySeen,
-}
+export type UnsendMessageError = "Unauthorized" | "AlreadySeen";
 export const unsend = (
   cmd: UnsendMessage,
   userId: UserId,
 ): Result<MessageUnsent, UnsendMessageError> => {
   if (userId !== cmd.message.authorId) {
-    return error(UnsendMessageError.Unauthorized);
+    return error("Unauthorized");
   }
 
   switch (cmd.message.deliveryStatus) {
@@ -63,7 +65,7 @@ export const unsend = (
     case DeliveryStatus.Sent:
       return ok({ messageId: cmd.message.id });
     case DeliveryStatus.Seen:
-      return error(UnsendMessageError.AlreadySeen);
+      return error("AlreadySeen");
   }
 };
 

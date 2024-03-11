@@ -11,9 +11,9 @@ import { ZodType, z } from "zod";
 import SQL from "sql-template-strings";
 
 const parse: ZodType<Message> = z.object({
-  id: z.bigint(),
-  chatId: z.bigint(),
-  authorId: z.bigint(),
+  id: z.number(),
+  chatId: z.number(),
+  authorId: z.number(),
   body: z.string(),
   sentAt: z.date(),
   deliveryStatus: z.nativeEnum(DeliveryStatus),

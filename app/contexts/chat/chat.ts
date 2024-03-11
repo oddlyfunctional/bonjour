@@ -33,9 +33,7 @@ export type RemoveChat = {
 export type ChatRemoved = {
   chatId: ChatId;
 };
-export enum RemoveChatError {
-  Unauthorized,
-}
+export type RemoveChatError = "Unauthorized";
 
 export const remove = (
   cmd: RemoveChat,
@@ -44,7 +42,7 @@ export const remove = (
   if (cmd.chat.adminId === userId) {
     return ok({ chatId: cmd.chat.id });
   } else {
-    return error(RemoveChatError.Unauthorized);
+    return error("Unauthorized");
   }
 };
 
@@ -56,25 +54,22 @@ export type AdminChanged = {
   chatId: ChatId;
   adminId: UserId;
 };
-export enum ChangeAdminError {
-  Unauthorized,
-  NotAMember,
-  AlreadyAdmin,
-}
+export type ChangeAdminError = "Unauthorized" | "NotAMember" | "AlreadyAdmin";
+
 export const changeAdmin = (
   cmd: ChangeAdmin,
   userId: UserId,
 ): Result<AdminChanged, ChangeAdminError> => {
   if (cmd.chat.adminId !== userId) {
-    return error(ChangeAdminError.Unauthorized);
+    return error("Unauthorized");
   }
 
   if (!cmd.chat.members.includes(cmd.newAdminId)) {
-    return error(ChangeAdminError.NotAMember);
+    return error("NotAMember");
   }
 
   if (cmd.newAdminId === cmd.chat.adminId) {
-    return error(ChangeAdminError.AlreadyAdmin);
+    return error("AlreadyAdmin");
   }
 
   return ok({
@@ -91,20 +86,18 @@ export type MemberAdded = {
   chatId: ChatId;
   memberId: UserId;
 };
-export enum AddMemberError {
-  Unauthorized,
-  AlreadyAMember,
-}
+export type AddMemberError = "Unauthorized" | "AlreadyAMember";
+
 export const addMember = (
   cmd: AddMember,
   userId: UserId,
 ): Result<MemberAdded, AddMemberError> => {
   if (cmd.chat.adminId !== userId) {
-    return error(AddMemberError.Unauthorized);
+    return error("Unauthorized");
   }
 
   if (cmd.chat.members.includes(cmd.newMemberId)) {
-    return error(AddMemberError.AlreadyAMember);
+    return error("AlreadyAMember");
   }
 
   return ok({
@@ -121,20 +114,18 @@ export type MemberRemoved = {
   chatId: ChatId;
   memberId: UserId;
 };
-export enum RemoveMemberError {
-  Unauthorized,
-  NotAMember,
-}
+export type RemoveMemberError = "Unauthorized" | "NotAMember";
+
 export const removeMember = (
   cmd: RemoveMember,
   userId: UserId,
 ): Result<MemberRemoved, RemoveMemberError> => {
   if (cmd.chat.adminId !== userId) {
-    return error(RemoveMemberError.Unauthorized);
+    return error("Unauthorized");
   }
 
   if (!cmd.chat.members.includes(cmd.memberId)) {
-    return error(RemoveMemberError.NotAMember);
+    return error("NotAMember");
   }
 
   return ok({

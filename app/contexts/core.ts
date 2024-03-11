@@ -1,3 +1,3 @@
-export type UserId = BigInt;
-export type ChatId = BigInt;
-export type MessageId = BigInt;
+export type UserId = number;
+export type ChatId = number;
+export type MessageId = number;

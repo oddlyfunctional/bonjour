@@ -13,10 +13,10 @@ import SQL from "sql-template-strings";
 import { ZodType, z } from "zod";
 
 const parse: ZodType<Chat> = z.object({
-  id: z.bigint(),
-  adminId: z.bigint(),
+  id: z.number(),
+  adminId: z.number(),
   name: z.string(),
-  members: z.array(z.bigint()),
+  members: z.array(z.number()),
 });
 
 export const make = (sql: Sql): Repository => ({
