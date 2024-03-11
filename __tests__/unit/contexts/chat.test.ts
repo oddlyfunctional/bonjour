@@ -1,12 +1,12 @@
 import { describe, expect, it } from "@jest/globals";
+import { ok, error } from "@/app/lib/result";
 import {
   create,
   remove,
   changeAdmin,
   addMember,
   removeMember,
-} from "@/app/contexts/chat/chat";
-import { ok, error } from "@/app/lib/result";
+} from "@/app/core/contexts/chat/chat";
 
 describe("Chat", () => {
   const chatId = 1;

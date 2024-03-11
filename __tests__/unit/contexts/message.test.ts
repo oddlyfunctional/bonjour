@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
-import { DeliveryStatus, send, unsend } from "@/app/contexts/chat/message";
 import { mock as mockClock } from "@/app/lib/clock";
 import { ok, error } from "@/app/lib/result";
+import { DeliveryStatus, send, unsend } from "@/app/core/contexts/chat/message";
 
 describe("Message", () => {
   const { setNow, clock } = mockClock();

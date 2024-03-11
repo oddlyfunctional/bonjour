@@ -1,7 +1,7 @@
 import { Result, ok, error } from "@/app/lib/result";
-import { ChatId, MessageId, UserId } from "@/app/contexts/core";
 import { Option } from "@/app/lib/option";
 import { Clock } from "@/app/lib/clock";
+import { ChatId, MessageId, UserId } from "@/app/core/core";
 
 export enum DeliveryStatus {
   Pending = "Pending",

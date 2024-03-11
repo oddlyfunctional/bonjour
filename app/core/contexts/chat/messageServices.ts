@@ -1,18 +1,17 @@
-import * as Message from "./message";
-import { ChatId, MessageId, UserId } from "@/app/contexts/core";
 import { Clock } from "@/app/lib/clock";
 import { Result, error } from "@/app/lib/result";
+import { ChatId, MessageId, UserId } from "@/app/core/core";
+import * as Message from "./message";
 
 export const send = async (
   {
     body,
     chatId,
-    userId,
   }: {
     body: string;
     chatId: ChatId;
-    userId: UserId;
   },
+  userId: UserId,
   repository: Message.Repository,
   clock: Clock,
 ) => {

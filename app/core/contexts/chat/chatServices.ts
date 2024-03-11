@@ -1,6 +1,6 @@
-import { ChatId, UserId } from "@/app/contexts/core";
-import * as Chat from "./chat";
 import { Result, error } from "@/app/lib/result";
+import { ChatId, UserId } from "@/app/core/core";
+import * as Chat from "./chat";
 
 export const create = async (
   name: string,

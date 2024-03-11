@@ -1,13 +1,13 @@
 import { describe, expect, it } from "@jest/globals";
 import { mock as mockClock } from "@/app/lib/clock";
-import { send, unsend } from "@/app/contexts/chat/messageServices";
 import { ok, error } from "@/app/lib/result";
+import { Option, none, some } from "@/app/lib/option";
+import { send, unsend } from "@/app/core/contexts/chat/messageServices";
 import {
   DeliveryStatus,
   Message,
   Repository,
-} from "@/app/contexts/chat/message";
-import { Option, none, some } from "@/app/lib/option";
+} from "@/app/core/contexts/chat/message";
 
 describe("messageServices", () => {
   const { setNow, clock } = mockClock();
@@ -39,7 +39,7 @@ describe("messageServices", () => {
     it("succeeds", async () => {
       mockMessageId = messageId + 1;
       expect(
-        await send({ body: "some message", chatId, userId }, repository, clock),
+        await send({ body: "some message", chatId }, userId, repository, clock),
       ).toEqual({
         id: mockMessageId,
         chatId: chatId,

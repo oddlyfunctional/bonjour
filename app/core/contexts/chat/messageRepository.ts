@@ -1,4 +1,7 @@
+import { ZodType, z } from "zod";
+import SQL from "sql-template-strings";
 import { Sql } from "@/app/lib/sql";
+import { MessageId } from "@/app/core/core";
 import {
   DeliveryStatus,
   Message,
@@ -6,11 +9,8 @@ import {
   MessageUnsent,
   Repository,
 } from "./message";
-import { MessageId } from "../core";
-import { ZodType, z } from "zod";
-import SQL from "sql-template-strings";
 
-const parse: ZodType<Message> = z.object({
+const schema: ZodType<Message> = z.object({
   id: z.number(),
   chatId: z.number(),
   authorId: z.number(),
@@ -33,10 +33,11 @@ export const make = (sql: Sql): Repository => ({
       FROM messages
       WHERE id = ${messageId}
     `,
-      parse,
+      schema,
     ),
   sent: async ({ message }: MessageSent) => {
-    const { insertedId: messageId } = await sql.insertOne(SQL`
+    const { id: messageId } = await sql.insertOne(
+      SQL`
       INSERT INTO messages (
         chat_id,
         author_id,
@@ -50,7 +51,9 @@ export const make = (sql: Sql): Repository => ({
         ${message.sentAt},
         ${message.deliveryStatus}
       ) RETURNING id
-    `);
+    `,
+      z.object({ id: z.number() }),
+    );
     return messageId;
   },
   unsent: async (event: MessageUnsent) => {

@@ -1,6 +1,6 @@
 import { Result, ok, error } from "@/app/lib/result";
-import { ChatId, UserId } from "@/app/contexts/core";
 import { Option } from "@/app/lib/option";
+import { ChatId, UserId } from "@/app/core/core";
 
 export type Chat = {
   id: ChatId;

@@ -1,4 +1,7 @@
+import { ZodType, z } from "zod";
+import SQL from "sql-template-strings";
 import { Sql } from "@/app/lib/sql";
+import { ChatId } from "@/app/core/core";
 import {
   AdminChanged,
   Chat,
@@ -8,11 +11,8 @@ import {
   MemberRemoved,
   Repository,
 } from "./chat";
-import { ChatId } from "../core";
-import SQL from "sql-template-strings";
-import { ZodType, z } from "zod";
 
-const parse: ZodType<Chat> = z.object({
+const schema: ZodType<Chat> = z.object({
   id: z.number(),
   adminId: z.number(),
   name: z.string(),
@@ -31,18 +31,21 @@ export const make = (sql: Sql): Repository => ({
       FROM chats
       WHERE id = ${chatId}
     `,
-      parse,
+      schema,
     ),
   created: async ({ chat }: ChatCreated) => {
-    const { insertedId: chatId } = await sql.insertOne(SQL`
+    const { id: chatId } = await sql.insertOne(
+      SQL`
       INSERT INTO chats (
         admin_id,
         name
       ) VALUES (
         ${chat.adminId},
         ${chat.name}
-      )
-    `);
+      ) RETURNING id
+    `,
+      z.object({ id: z.number() }),
+    );
     const insertMembersStatement = SQL`
       INSERT INTO chats_users (
         chat_id,
