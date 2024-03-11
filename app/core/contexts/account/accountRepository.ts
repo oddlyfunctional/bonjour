@@ -26,7 +26,7 @@ export const make = (sql: Sql): Repository => ({
       SELECT
         id,
         email,
-        password_hash AS passwordHash,
+        password_hash AS "passwordHash",
         verified
       FROM users
       WHERE
@@ -85,7 +85,7 @@ export const make = (sql: Sql): Repository => ({
   passwordUpdated: async (event: PasswordUpdated) => {
     await sql.mutate(SQL`
       UPDATE users
-      SET password_hash = ${event.newPasswordHash}
+      SET password_hash = ${event.newPasswordHash.value}
       WHERE id = ${event.userId}
     `);
   },

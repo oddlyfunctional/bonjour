@@ -2,7 +2,7 @@
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     email VARCHAR(100) NOT NULL,
-    password_hash CHAR(72) NOT NULL,
+    password_hash VARCHAR(72) NOT NULL,
     verified BOOLEAN NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -30,7 +30,7 @@ CREATE TRIGGER update_user_timestamp
 CREATE TABLE users_audit (
     id INTEGER,
     email VARCHAR(100),
-    password_hash CHAR(72),
+    password_hash VARCHAR(72),
     verified BOOLEAN,
     created_at TIMESTAMP,
     updated_at TIMESTAMP,

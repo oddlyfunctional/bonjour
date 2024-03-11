@@ -154,7 +154,7 @@ CREATE TABLE public.schema_migrations (
 CREATE TABLE public.users (
     id integer NOT NULL,
     email character varying(100) NOT NULL,
-    password_hash character(72) NOT NULL,
+    password_hash character varying(72) NOT NULL,
     verified boolean NOT NULL,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -169,7 +169,7 @@ CREATE TABLE public.users (
 CREATE TABLE public.users_audit (
     id integer,
     email character varying(100),
-    password_hash character(72),
+    password_hash character varying(72),
     verified boolean,
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
