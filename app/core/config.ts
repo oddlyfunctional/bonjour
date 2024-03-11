@@ -11,19 +11,11 @@ export type Config = {
 type Store = { [key: string]: string | undefined };
 
 const sqlSchema: ZodType<ClientConfig> = z.object({
-  user: z.optional(z.string()),
-  database: z.optional(z.string()),
-  password: z.optional(z.string()),
-  port: z.optional(z.number()),
-  host: z.optional(z.string()),
+  connectionString: z.string(),
 });
 const parseSqlConfig = (store: Store) =>
   sqlSchema.safeParse({
-    user: store.PG_USER,
-    database: store.PG_DATABASE,
-    password: store.PG_PASSWORD,
-    port: store.PG_PORT,
-    host: store.PG_HOST,
+    connectionString: store.DATABASE_URL,
   });
 
 const parseStaticSalt = (store: Store) =>

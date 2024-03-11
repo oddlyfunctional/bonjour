@@ -50,7 +50,7 @@ export const make = (sql: Sql): Repository => ({
       INSERT INTO chats_users (
         chat_id,
         user_id
-      )`;
+      ) VALUES`;
     for (let memberId of chat.members) {
       insertMembersStatement.append(SQL`(${chatId}, ${memberId})`);
     }

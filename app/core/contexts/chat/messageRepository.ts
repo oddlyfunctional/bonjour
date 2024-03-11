@@ -25,11 +25,11 @@ export const make = (sql: Sql): Repository => ({
       SQL`
       SELECT
         id,
-        chat_id AS chatId,
-        author_id AS authorId,
+        chat_id AS "chatId",
+        author_id AS "authorId",
         body,
-        sent_at AS sentAt,
-        delivery_status AS deliveryStatus
+        sent_at AS "sentAt",
+        delivery_status AS "deliveryStatus"
       FROM messages
       WHERE id = ${messageId}
     `,
