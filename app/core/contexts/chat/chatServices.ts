@@ -44,7 +44,7 @@ export const changeAdmin = async (
   if (chat.some) {
     const event = Chat.changeAdmin({ chat: chat.value, newAdminId }, userId);
     if (event.ok) {
-      await repository.removed(event.value);
+      await repository.adminChanged(event.value);
     }
     return event;
   } else {

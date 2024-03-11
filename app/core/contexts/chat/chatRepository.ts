@@ -25,9 +25,13 @@ export const make = (sql: Sql): Repository => ({
       SQL`
       SELECT
         id,
-        admin_id AS adminId,
+        admin_id AS "adminId",
         name,
-        members
+        ARRAY(
+          SELECT user_id
+          FROM chats_users
+          WHERE chat_id = id
+        ) AS members
       FROM chats
       WHERE id = ${chatId}
     `,
@@ -67,7 +71,7 @@ export const make = (sql: Sql): Repository => ({
     await sql.mutate(SQL`
       UPDATE chats
       SET admin_id = ${event.adminId}
-      WHERE chat_id = ${event.chatId}
+      WHERE id = ${event.chatId}
     `);
   },
   memberAdded: async (event: MemberAdded) => {
