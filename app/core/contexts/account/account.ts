@@ -1,4 +1,5 @@
 import { Result, ok, error } from "@/app/lib/result";
+import { Option } from "@/app/lib/option";
 import { UserId } from "@/app/core/core";
 import { Hash, HashingService, StaticSalt } from "@/app/lib/hash";
 
@@ -181,4 +182,13 @@ export const updatePassword = async (
     userId,
     newPasswordHash: await hashingService(newPassword.value, cmd.staticSalt),
   });
+};
+
+export type Repository = {
+  getById: (userId: UserId) => Promise<Option<Account>>;
+  accountCreated: (event: AccountCreated) => Promise<UserId>;
+  accountVerified: (event: AccountVerified) => Promise<void>;
+  accountDeleted: (event: AccountDeleted) => Promise<void>;
+  emailUpdated: (event: EmailUpdated) => Promise<void>;
+  passwordUpdated: (event: PasswordUpdated) => Promise<void>;
 };
