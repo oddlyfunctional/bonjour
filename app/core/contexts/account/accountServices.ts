@@ -12,7 +12,7 @@ export const createAccount = async (
     {
       email,
       password,
-      staticSalt: env.staticSalt,
+      staticPepper: env.staticPepper,
     },
     env.hashingService,
   );
@@ -116,7 +116,7 @@ export const updatePassword = async (
     {
       account: account.value,
       newPassword,
-      staticSalt: env.staticSalt,
+      staticPepper: env.staticPepper,
     },
     userId,
     env.hashingService,

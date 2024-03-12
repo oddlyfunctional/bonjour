@@ -7,7 +7,7 @@ import {
   verifyAccount,
 } from "@/app/core/contexts/account/accountServices";
 import { Env } from "@/app/core/env";
-import { Hash, HashingService, makeStaticSalt } from "@/app/lib/hash";
+import { Hash, HashingService, makeStaticPepper } from "@/app/lib/hash";
 import { Option, none, some } from "@/app/lib/option";
 import { ok, error } from "@/app/lib/result";
 import { describe, expect, it } from "@jest/globals";
@@ -41,7 +41,7 @@ describe("accountServices", () => {
   const hashingService: HashingService = async () => makeHash(mockHash);
 
   const env: Env = {
-    staticSalt: makeStaticSalt("some static salt"),
+    staticPepper: makeStaticPepper("some static pepper"),
     hashingService,
     sql: null as any,
   };

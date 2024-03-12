@@ -1,18 +1,18 @@
 import { hash } from "bcrypt";
 
 export type Hash = { _tag: "Hash"; value: string };
-export type StaticSalt = { _tag: "StaticSalt"; value: string };
+export type StaticPepper = { _tag: "StaticPepper"; value: string };
 export type HashingService = (
   data: string,
-  staticSalt: StaticSalt,
+  staticPepper: StaticPepper,
 ) => Promise<Hash>;
 
-export const makeStaticSalt = (value: string): StaticSalt => ({
-  _tag: "StaticSalt",
+export const makeStaticPepper = (value: string): StaticPepper => ({
+  _tag: "StaticPepper",
   value,
 });
 
-export const hashingService: HashingService = async (data, staticSalt) => ({
+export const hashingService: HashingService = async (data, staticPepper) => ({
   _tag: "Hash",
-  value: await hash(data, staticSalt.value),
+  value: await hash(data + staticPepper.value, 10),
 });

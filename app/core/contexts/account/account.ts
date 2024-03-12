@@ -1,7 +1,7 @@
 import { Result, ok, error } from "@/app/lib/result";
 import { Option } from "@/app/lib/option";
 import { UserId } from "@/app/core/core";
-import { Hash, HashingService, StaticSalt } from "@/app/lib/hash";
+import { Hash, HashingService, StaticPepper } from "@/app/lib/hash";
 
 export type Account = {
   id: UserId;
@@ -45,7 +45,7 @@ const validateEmail = (email: string): Result<string, InvalidEmailError> => {
 export type CreateAccount = {
   email: string;
   password: string;
-  staticSalt: StaticSalt;
+  staticPepper: StaticPepper;
 };
 export type AccountCreated = {
   email: string;
@@ -70,7 +70,7 @@ export const createAccount = async (
 
   return ok({
     email: email.value,
-    passwordHash: await hashingService(password.value, cmd.staticSalt),
+    passwordHash: await hashingService(password.value, cmd.staticPepper),
     verified: false,
   });
 };
@@ -150,7 +150,7 @@ export const updateEmail = (
 export type UpdatePassword = {
   account: Account;
   newPassword: string;
-  staticSalt: StaticSalt;
+  staticPepper: StaticPepper;
 };
 export type PasswordUpdated = {
   userId: UserId;
@@ -180,7 +180,7 @@ export const updatePassword = async (
 
   return ok({
     userId,
-    newPasswordHash: await hashingService(newPassword.value, cmd.staticSalt),
+    newPasswordHash: await hashingService(newPassword.value, cmd.staticPepper),
   });
 };
 

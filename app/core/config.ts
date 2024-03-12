@@ -1,11 +1,11 @@
 import { ClientConfig } from "pg";
 import { ZodError, ZodType, z } from "zod";
 import { Result, ok, error } from "@/app/lib/result";
-import { StaticSalt, makeStaticSalt } from "@/app/lib/hash";
+import { StaticPepper, makeStaticPepper } from "@/app/lib/hash";
 
 export type Config = {
   sql: ClientConfig;
-  staticSalt: StaticSalt;
+  staticPepper: StaticPepper;
 };
 
 type Store = { [key: string]: string | undefined };
@@ -18,21 +18,21 @@ const parseSqlConfig = (store: Store) =>
     connectionString: store.DATABASE_URL,
   });
 
-const parseStaticSalt = (store: Store) =>
-  z.string().safeParse(store.STATIC_SALT);
+const parseStaticPepper = (store: Store) =>
+  z.string().safeParse(store.STATIC_PEPPER);
 
 export const make = (): Result<Config, ZodError> => {
   const sql = parseSqlConfig(process.env);
   if (!sql.success) {
     return error(sql.error);
   }
-  const staticSalt = parseStaticSalt(process.env);
-  if (!staticSalt.success) {
-    return error(staticSalt.error);
+  const staticPepper = parseStaticPepper(process.env);
+  if (!staticPepper.success) {
+    return error(staticPepper.error);
   }
 
   return ok({
     sql: sql.data,
-    staticSalt: makeStaticSalt(staticSalt.data),
+    staticPepper: makeStaticPepper(staticPepper.data),
   });
 };

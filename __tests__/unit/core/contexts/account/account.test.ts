@@ -9,8 +9,8 @@ import {
 import {
   Hash,
   HashingService,
-  StaticSalt,
-  makeStaticSalt,
+  StaticPepper,
+  makeStaticPepper,
 } from "@/app/lib/hash";
 import { ok, error } from "@/app/lib/result";
 import { describe, expect, it } from "@jest/globals";
@@ -23,7 +23,7 @@ describe("Account", () => {
 
   const mockHashingService =
     (returnValue: string): HashingService =>
-    async (_data: string, _salt: StaticSalt) =>
+    async (_data: string, _pepper: StaticPepper) =>
       makeHash(returnValue);
 
   const verifiedAccount: Account = {
@@ -33,7 +33,7 @@ describe("Account", () => {
     verified: true,
   };
 
-  const staticSalt = makeStaticSalt("some static salt");
+  const staticPepper = makeStaticPepper("some static pepper");
 
   describe("createAccount", () => {
     it("returns event", async () => {
@@ -42,7 +42,7 @@ describe("Account", () => {
           {
             email: verifiedAccount.email,
             password: "safePassword123!",
-            staticSalt,
+            staticPepper,
           },
           mockHashingService("hashed password"),
         ),
@@ -61,7 +61,7 @@ describe("Account", () => {
           {
             email: "INVALID EMAIL",
             password: "safePassword123!",
-            staticSalt,
+            staticPepper,
           },
           mockHashingService("hashed password"),
         ),
@@ -74,7 +74,7 @@ describe("Account", () => {
           {
             email: verifiedAccount.email,
             password: "short",
-            staticSalt,
+            staticPepper,
           },
           mockHashingService("hashed password"),
         ),
@@ -87,7 +87,7 @@ describe("Account", () => {
           {
             email: verifiedAccount.email,
             password: "invalidpassword",
-            staticSalt,
+            staticPepper,
           },
           mockHashingService("hashed password"),
         ),
@@ -211,7 +211,7 @@ describe("Account", () => {
           {
             account: verifiedAccount,
             newPassword: "safePassword123!",
-            staticSalt,
+            staticPepper,
           },
           verifiedAccount.id,
           mockHashingService("hashed password"),
@@ -230,7 +230,7 @@ describe("Account", () => {
           {
             account: verifiedAccount,
             newPassword: "safePassword123!",
-            staticSalt,
+            staticPepper,
           },
           verifiedAccount.id + 1,
           mockHashingService("hashed password"),
@@ -244,7 +244,7 @@ describe("Account", () => {
           {
             account: verifiedAccount,
             newPassword: "short",
-            staticSalt,
+            staticPepper,
           },
           verifiedAccount.id,
           mockHashingService("hashed password"),
@@ -258,7 +258,7 @@ describe("Account", () => {
           {
             account: verifiedAccount,
             newPassword: "invalidpassword",
-            staticSalt,
+            staticPepper,
           },
           verifiedAccount.id,
           mockHashingService("hashed password"),
@@ -272,7 +272,7 @@ describe("Account", () => {
           {
             account: { ...verifiedAccount, verified: false },
             newPassword: "safePassword123!",
-            staticSalt,
+            staticPepper,
           },
           verifiedAccount.id,
           mockHashingService("hashed password"),
