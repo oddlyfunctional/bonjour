@@ -20,151 +20,191 @@ const schema = z.object({
   verified: z.boolean(),
 });
 
-export const make = (sql: Sql): Repository => ({
-  getById: async (userId: UserId) => {
-    const account = await sql.queryOne(
-      SQL`
-      SELECT
-        id,
-        email,
-        password_hash AS "passwordHash",
-        verified
-      FROM users
-      WHERE
-        id = ${userId}
-        AND deleted_at IS NULL
-    `,
-      schema,
-    );
+export const make = (sql: Sql): Repository => {
+  const insertSession = async ({
+    userId,
+    sessionId,
+    lastSignedInAt,
+  }: {
+    userId: UserId;
+    sessionId: SessionId;
+    lastSignedInAt: Date;
+  }) => {
+    await sql.mutate(SQL`
+    UPDATE users
+    SET last_signed_in_at = ${lastSignedInAt}
+    WHERE id = ${userId}
+    `);
+    await sql.mutate(SQL`
+    INSERT INTO sessions (id, user_id)
+    VALUES (${sessionId}, ${userId})
+    `);
+  };
 
-    if (!account.some) {
-      return account;
-    }
-    return some({
-      ...account.value,
-      passwordHash: { _tag: "Hash", value: account.value.passwordHash },
-    });
-  },
-  getByEmail: async (email: string) => {
-    const account = await sql.queryOne(
-      SQL`
-      SELECT
-        id,
-        email,
-        password_hash AS "passwordHash",
-        verified
-      FROM users
-      WHERE
-        email = ${email}
-        AND deleted_at IS NULL
-    `,
-      schema,
-    );
+  return {
+    getById: async (userId: UserId) => {
+      const account = await sql.queryOne(
+        SQL`
+        SELECT
+          id,
+          email,
+          password_hash AS "passwordHash",
+          verified
+        FROM users
+        WHERE
+          id = ${userId}
+          AND deleted_at IS NULL
+        `,
+        schema,
+      );
 
-    if (!account.some) {
-      return account;
-    }
-    return some({
-      ...account.value,
-      passwordHash: { _tag: "Hash", value: account.value.passwordHash },
-    });
-  },
-  getBySessionId: async (sessionId: SessionId) => {
-    const account = await sql.queryOne(
-      SQL`
-      SELECT
-        users.id,
-        email,
-        password_hash AS "passwordHash",
-        verified
-      FROM users
-      INNER JOIN sessions
-        ON sessions.user_id = users.id
-      WHERE
-        sessions.id = ${sessionId}
-        AND deleted_at IS NULL
-    `,
-      schema,
-    );
+      if (!account.some) {
+        return account;
+      }
+      return some({
+        ...account.value,
+        passwordHash: { _tag: "Hash", value: account.value.passwordHash },
+      });
+    },
+    getByEmail: async (email: string) => {
+      const account = await sql.queryOne(
+        SQL`
+        SELECT
+          id,
+          email,
+          password_hash AS "passwordHash",
+          verified
+        FROM users
+        WHERE
+          email = ${email}
+          AND deleted_at IS NULL
+        `,
+        schema,
+      );
 
-    if (!account.some) {
-      return account;
-    }
-    return some({
-      ...account.value,
-      passwordHash: { _tag: "Hash", value: account.value.passwordHash },
-    });
-  },
-  isEmailAvailable: async (email: string) => {
-    const exists = await sql.queryOne(
-      SQL`
-      SELECT EXISTS(SELECT 1 FROM users WHERE email = ${email}) AS exists
-    `,
-      z.object({ exists: z.boolean() }),
-    );
+      if (!account.some) {
+        return account;
+      }
+      return some({
+        ...account.value,
+        passwordHash: { _tag: "Hash", value: account.value.passwordHash },
+      });
+    },
+    getBySessionId: async (sessionId: SessionId) => {
+      const account = await sql.queryOne(
+        SQL`
+        SELECT
+          users.id,
+          email,
+          password_hash AS "passwordHash",
+          verified
+        FROM users
+        INNER JOIN sessions
+          ON sessions.user_id = users.id
+        WHERE
+          sessions.id = ${sessionId}
+          AND deleted_at IS NULL
+        `,
+        schema,
+      );
 
-    return exists.some ? !exists.value.exists : true;
-  },
-  accountCreated: async (event: AccountCreated) => {
-    const { id: userId } = await sql.insertOne(
-      SQL`
+      if (!account.some) {
+        return account;
+      }
+      return some({
+        ...account.value,
+        passwordHash: { _tag: "Hash", value: account.value.passwordHash },
+      });
+    },
+    getByVerificationToken: async (verificationToken: string) => {
+      const account = await sql.queryOne(
+        SQL`
+        SELECT
+          id,
+          email,
+          password_hash AS "passwordHash",
+          verified
+        FROM users
+        WHERE
+          verification_token = ${verificationToken}
+          AND deleted_at IS NULL
+        `,
+        schema,
+      );
+
+      if (!account.some) {
+        return account;
+      }
+      return some({
+        ...account.value,
+        passwordHash: { _tag: "Hash", value: account.value.passwordHash },
+      });
+    },
+    isEmailAvailable: async (email: string) => {
+      const exists = await sql.queryOne(
+        SQL`
+        SELECT EXISTS(SELECT 1 FROM users WHERE email = ${email}) AS exists
+        `,
+        z.object({ exists: z.boolean() }),
+      );
+
+      return exists.some ? !exists.value.exists : true;
+    },
+    accountCreated: async (event: AccountCreated) => {
+      const { id: userId } = await sql.insertOne(
+        SQL`
         INSERT INTO users (
           email,
           password_hash,
+          verification_token,
           verified
         ) VALUES (
           ${event.email},
           ${event.passwordHash.value},
-          ${event.verified}
+          ${event.verificationToken},
+          FALSE
         ) RETURNING id
-      `,
-      z.object({ id: z.number() }),
-    );
-    return userId;
-  },
-  signedIn: async (event: SignedIn) => {
-    await sql.mutate(SQL`
-      UPDATE users
-      SET last_signed_in_at = ${event.lastSignedInAt}
-      WHERE id = ${event.userId}
-    `);
-    await sql.mutate(SQL`
-      INSERT INTO sessions (id, user_id)
-      VALUES (${event.sessionId}, ${event.userId})
-    `);
-  },
-  signOut: async (sessionId: SessionId) => {
-    await sql.mutate(SQL`
+        `,
+        z.object({ id: z.number() }),
+      );
+      return userId;
+    },
+    signedIn: async (event: SignedIn) => insertSession(event),
+    signOut: async (sessionId: SessionId) => {
+      await sql.mutate(SQL`
       DELETE FROM sessions
       WHERE id = ${sessionId}
-    `);
-  },
-  accountVerified: async (event: AccountVerified) => {
-    await sql.mutate(SQL`
-      UPDATE users
-      SET verified = TRUE
+      `);
+    },
+    accountVerified: async (event: AccountVerified) => {
+      await sql.mutate(SQL`
+      UPDATE users SET
+      verified = TRUE,
+      verification_token = NULL
       WHERE id = ${event.userId}
-    `);
-  },
-  accountDeleted: async (event: AccountDeleted) => {
-    await sql.mutate(SQL`
+      `);
+      await insertSession(event);
+    },
+    accountDeleted: async (event: AccountDeleted) => {
+      await sql.mutate(SQL`
       UPDATE users
       SET deleted_at = NOW()
       WHERE id = ${event.userId}
-    `);
-  },
-  emailUpdated: async (event: EmailUpdated) => {
-    await sql.mutate(SQL`
+      `);
+    },
+    emailUpdated: async (event: EmailUpdated) => {
+      await sql.mutate(SQL`
       UPDATE users
       SET email = ${event.newEmail}
       WHERE id = ${event.userId}
-    `);
-  },
-  passwordUpdated: async (event: PasswordUpdated) => {
-    await sql.mutate(SQL`
+      `);
+    },
+    passwordUpdated: async (event: PasswordUpdated) => {
+      await sql.mutate(SQL`
       UPDATE users
       SET password_hash = ${event.newPasswordHash.value}
       WHERE id = ${event.userId}
-    `);
-  },
-});
+      `);
+    },
+  };
+};

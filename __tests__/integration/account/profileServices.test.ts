@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, test } from "@jest/globals";
 import { fail } from "assert";
 import { Repository as ProfileRepository } from "@/app/core/contexts/account/profile";
 import * as ProfileRepo from "@/app/core/contexts/account/profileRepository";
-import { start } from "@/app/core/startup";
+import { load } from "@/app/core/startup";
 import { makeUser } from "@/__tests__/factories";
 import { UserId } from "@/app/core/core";
 import {
@@ -17,8 +17,8 @@ describe("profileServices integration tests", () => {
     profileRepo: ProfileRepository;
   };
   beforeAll(async () => {
-    const env = await start();
-    const user = await makeUser(env);
+    const { env, config } = await load();
+    const user = await makeUser(config, env);
     const profileRepo = ProfileRepo.make(env.sql);
 
     world = {

@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, test } from "@jest/globals";
 import * as ChatRepo from "@/app/core/contexts/chat/chatRepository";
 import { Account } from "@/app/core/contexts/account/account";
 import { Repository as ChatRepository } from "@/app/core/contexts/chat/chat";
-import { start } from "@/app/core/startup";
+import { load } from "@/app/core/startup";
 import { makeUser } from "@/__tests__/factories";
 import {
   addMember,
@@ -14,33 +14,36 @@ import {
 import { fail } from "assert";
 import { Env } from "@/app/core/env";
 import { none, some } from "@/app/lib/option";
+import { Config } from "@/app/core/config";
 
 describe("chatServices integration tests", () => {
   let world: {
     user: Account;
     chatRepo: ChatRepository;
+    config: Config;
     env: Env;
   };
   beforeAll(async () => {
-    const env = await start();
+    const { env, config } = await load();
     const chatRepo = ChatRepo.make(env.sql);
 
-    const user = await makeUser(env);
+    const user = await makeUser(config, env);
 
     world = {
       user,
       chatRepo,
+      config,
       env,
     };
   });
 
   test("chat services", async () => {
-    const { user, chatRepo, env } = world;
+    const { user, chatRepo, config, env } = world;
 
     const chat = await create("some chat", user.id, chatRepo);
     expect(await chatRepo.getById(chat.id)).toEqual(some(chat));
 
-    const newAdmin = await makeUser(env);
+    const newAdmin = await makeUser(config, env);
     const memberAdded = await addMember(
       { chatId: chat.id, newMemberId: newAdmin.id },
       user.id,

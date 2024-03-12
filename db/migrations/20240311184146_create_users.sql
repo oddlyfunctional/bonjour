@@ -9,7 +9,7 @@ CREATE TABLE users (
     deleted_at TIMESTAMP DEFAULT NULL
 );
 
-CREATE INDEX users_email_idx ON users(email);
+CREATE UNIQUE INDEX users_email_idx ON users(email);
 
 CREATE FUNCTION update_timestamp()
     RETURNS TRIGGER

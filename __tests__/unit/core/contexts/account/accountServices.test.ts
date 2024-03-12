@@ -14,6 +14,9 @@ import { Option, none, some } from "@/app/lib/option";
 import { ok, error } from "@/app/lib/result";
 import * as Clock from "@/app/lib/clock";
 import * as Random from "@/app/lib/random";
+import * as Mailer from "@/app/lib/mailer";
+import * as AccountMailer from "@/app/core/contexts/account/accountMailer";
+import { Config } from "@/app/core/config";
 
 const makeHash = (value: string): Hash => ({
   _tag: "Hash",
@@ -36,6 +39,7 @@ describe("accountServices", () => {
     getById: async () => mockAccount,
     getByEmail: async () => mockAccount,
     getBySessionId: async () => mockAccount,
+    getByVerificationToken: async () => mockAccount,
     isEmailAvailable: async () => mockIsEmailAvailable,
     accountCreated: async () => mockUserId,
     signedIn: async () => {},
@@ -55,22 +59,35 @@ describe("accountServices", () => {
 
   const mockClock = Clock.mock();
   const mockRandom = Random.mock();
+  const mockMailer = Mailer.mock();
+
+  const config = {
+    mailer: {
+      noReplyAddress: "no-reply",
+      accountVerificationTemplate: "verification-template",
+    },
+  } as Config;
+
+  const mailer = AccountMailer.make(config, mockMailer.mailer);
 
   const env: Env = {
     staticPepper: makeStaticPepper("some static pepper"),
     hashingService,
     clock: mockClock.clock,
     random: mockRandom.random,
+    mailer: mockMailer.mailer,
 
     // won't be used, should fail if accessed
     sql: null as any,
   };
 
   describe("createAccount", () => {
-    it("succeeds", async () => {
+    it.only("succeeds", async () => {
       mockUserId = userId + 1;
       mockHash = "hashed password";
       mockIsEmailAvailable = true;
+      const token = "some verification token";
+      mockRandom.setNextString(token);
 
       expect(
         await createAccount(
@@ -79,6 +96,7 @@ describe("accountServices", () => {
             password: "safePassword123!",
           },
           repository,
+          mailer,
           env,
         ),
       ).toEqual(
@@ -89,6 +107,14 @@ describe("accountServices", () => {
           verified: false,
         }),
       );
+
+      expect(mockMailer.getLastEmail()).toEqual({
+        to: ["valid@email.com"],
+        from: "no-reply",
+        subject: "Verify your Bonjour account",
+        template: "verification-template",
+        params: { token },
+      });
     });
 
     it("fails if email is already taken", async () => {
@@ -100,6 +126,7 @@ describe("accountServices", () => {
             password: "safePassword123!",
           },
           repository,
+          mailer,
           env,
         ),
       ).toEqual(error("EmailAlreadyTaken"));
@@ -112,7 +139,7 @@ describe("accountServices", () => {
     it("succeeds", async () => {
       mockAccount = some(verifiedAccount);
       mockClock.setNow(now);
-      mockRandom.setUuid("some session id");
+      mockRandom.setNextUuid("some session id");
       mockVerify = true;
 
       expect(
@@ -146,7 +173,7 @@ describe("accountServices", () => {
   describe("verifyAccount", () => {
     it("succeeds", async () => {
       mockAccount = some({ ...verifiedAccount, verified: false });
-      expect(await verifyAccount(verifiedAccount.id, repository)).toEqual(
+      expect(await verifyAccount("some token", repository, env)).toEqual(
         ok({
           userId: verifiedAccount.id,
         }),
@@ -155,7 +182,7 @@ describe("accountServices", () => {
 
     it("fails if can't find account", async () => {
       mockAccount = none;
-      expect(await verifyAccount(verifiedAccount.id, repository)).toEqual(
+      expect(await verifyAccount("some token", repository, env)).toEqual(
         error("AccountNotFound"),
       );
     });

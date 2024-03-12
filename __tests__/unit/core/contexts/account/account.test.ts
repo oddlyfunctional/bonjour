@@ -41,6 +41,9 @@ describe("Account", () => {
   describe("createAccount", () => {
     it("returns event", async () => {
       mockHash = "hashed password";
+      const token = "verification token";
+      mockRandom.setNextString(token);
+
       expect(
         await createAccount(
           {
@@ -49,12 +52,13 @@ describe("Account", () => {
             staticPepper,
           },
           hashingService,
+          mockRandom.random,
         ),
       ).toEqual(
         ok({
           email: verifiedAccount.email,
           passwordHash: makeHash("hashed password"),
-          verified: false,
+          verificationToken: token,
         }),
       );
     });
@@ -68,6 +72,7 @@ describe("Account", () => {
             staticPepper,
           },
           hashingService,
+          mockRandom.random,
         ),
       ).toEqual(error("InvalidEmail"));
     });
@@ -81,6 +86,7 @@ describe("Account", () => {
             staticPepper,
           },
           hashingService,
+          mockRandom.random,
         ),
       ).toEqual(error("PasswordTooShort"));
     });
@@ -94,6 +100,7 @@ describe("Account", () => {
             staticPepper,
           },
           hashingService,
+          mockRandom.random,
         ),
       ).toEqual(error("PasswordNotSafe"));
     });
@@ -104,7 +111,7 @@ describe("Account", () => {
       const now = new Date();
       mockClock.setNow(now);
       mockVerify = true;
-      mockRandom.setUuid("some session id");
+      mockRandom.setNextUuid("some session id");
       expect(
         await signIn(
           {
@@ -175,15 +182,27 @@ describe("Account", () => {
   });
 
   describe("verifyAccount", () => {
+    const now = new Date();
+
     it("returns event", () => {
+      mockRandom.setNextUuid("some token");
+      mockClock.setNow(now);
       expect(
         verifyAccount(
           {
             account: { ...verifiedAccount, verified: false },
           },
           verifiedAccount.id,
+          mockRandom.random,
+          mockClock.clock,
         ),
-      ).toEqual(ok({ userId: verifiedAccount.id }));
+      ).toEqual(
+        ok({
+          userId: verifiedAccount.id,
+          lastSignedInAt: now,
+          sessionId: "some token",
+        }),
+      );
     });
 
     it("fails if not the same user", () => {
@@ -193,6 +212,8 @@ describe("Account", () => {
             account: { ...verifiedAccount, verified: false },
           },
           verifiedAccount.id + 1,
+          mockRandom.random,
+          mockClock.clock,
         ),
       ).toEqual(error("Unauthorized"));
     });
@@ -204,6 +225,8 @@ describe("Account", () => {
             account: verifiedAccount,
           },
           verifiedAccount.id,
+          mockRandom.random,
+          mockClock.clock,
         ),
       ).toEqual(error("AlreadyVerified"));
     });

@@ -2,19 +2,18 @@ import { SessionId, UserId } from "@/app/core/core";
 import { Env } from "@/app/core/env";
 import { Result, ok, error } from "@/app/lib/result";
 import * as Account from "./account";
-import { Clock } from "@/app/lib/clock";
-import { Random } from "@/app/lib/random";
+import { AccountMailer } from "./accountMailer";
 
 export const createAccount = async (
   { email, password }: { email: string; password: string },
   repository: Account.Repository,
+  mailer: AccountMailer,
   env: Env,
 ): Promise<
   Result<Account.Account, Account.CreateAccountError | "EmailAlreadyTaken">
 > => {
-  if (!(await repository.isEmailAvailable(email))) {
+  if (!(await repository.isEmailAvailable(email)))
     return error("EmailAlreadyTaken");
-  }
 
   const event = await Account.createAccount(
     {
@@ -23,17 +22,22 @@ export const createAccount = async (
       staticPepper: env.staticPepper,
     },
     env.hashingService,
+    env.random,
   );
 
-  if (!event.ok) {
-    return event;
-  }
+  if (!event.ok) return event;
 
   const id = await repository.accountCreated(event.value);
+  await mailer.sendAccountVerificationEmail({
+    email: event.value.email,
+    token: event.value.verificationToken,
+  });
 
   return ok({
-    ...event.value,
     id,
+    email: event.value.email,
+    passwordHash: event.value.passwordHash,
+    verified: false,
   });
 };
 
@@ -71,20 +75,26 @@ export const signOut = (sessionId: SessionId, repository: Account.Repository) =>
   repository.signOut(sessionId);
 
 export const verifyAccount = async (
-  userId: UserId,
+  verificationToken: string,
   repository: Account.Repository,
+  env: Env,
 ): Promise<
   Result<
     Account.AccountVerified,
     Account.VerifyAccountError | "AccountNotFound"
   >
 > => {
-  const account = await repository.getById(userId);
+  const account = await repository.getByVerificationToken(verificationToken);
   if (!account.some) {
     return error("AccountNotFound");
   }
 
-  const event = Account.verifyAccount({ account: account.value }, userId);
+  const event = Account.verifyAccount(
+    { account: account.value },
+    account.value.id,
+    env.random,
+    env.clock,
+  );
   if (!event.ok) {
     return event;
   }

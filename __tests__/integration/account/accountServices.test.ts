@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from "@jest/globals";
 import { Env } from "@/app/core/env";
-import { start } from "@/app/core/startup";
+import { load } from "@/app/core/startup";
 import { Repository as UserRepository } from "@/app/core/contexts/account/account";
 import * as UserRepo from "@/app/core/contexts/account/accountRepository";
 import {
@@ -14,34 +14,63 @@ import {
 import { randomBytes } from "crypto";
 import { fail } from "assert";
 import { none, some } from "@/app/lib/option";
+import * as AccountMailer from "@/app/core/contexts/account/accountMailer";
+import { z } from "zod";
+import SQL from "sql-template-strings";
+import { UserId } from "@/app/core/core";
 
 describe("accountServices integration tests", () => {
   let world: {
     userRepo: UserRepository;
+    accountMailer: AccountMailer.AccountMailer;
     env: Env;
   };
   beforeAll(async () => {
-    const env = await start();
+    const { env, config } = await load();
     const userRepo = UserRepo.make(env.sql);
+    const accountMailer = AccountMailer.make(config, env.mailer);
 
-    world = { userRepo, env };
+    world = { userRepo, accountMailer, env };
   });
 
+  const getVerificationToken = async (userId: UserId, env: Env) => {
+    const result = await env.sql.queryOne(
+      SQL`
+    SELECT verification_token AS "verificationToken" FROM users
+    WHERE id = ${userId}
+  `,
+      z.object({ verificationToken: z.nullable(z.string()) }),
+    );
+    if (!result.some) fail("could not retrieve verification token");
+
+    return result.value.verificationToken;
+  };
+
   test("account services", async () => {
-    const { userRepo, env } = world;
+    const { userRepo, accountMailer, env } = world;
 
     const email = "_" + randomBytes(10).toString("hex") + "@email.com";
     const password = randomBytes(10).toString("hex") + "aA1!";
-    const userResult = await createAccount({ email, password }, userRepo, env);
+    const userResult = await createAccount(
+      { email, password },
+      userRepo,
+      accountMailer,
+      env,
+    );
     if (!userResult.ok) fail(userResult.error);
     const user = userResult.value;
     expect(await userRepo.getById(user.id)).toEqual(some(user));
 
-    const accountVerified = await verifyAccount(user.id, userRepo);
+    const accountVerified = await verifyAccount(
+      (await getVerificationToken(user.id, env)) as string,
+      userRepo,
+      env,
+    );
     if (!accountVerified.ok) fail(accountVerified.error);
-    expect(accountVerified.value).toEqual({ userId: user.id });
+    expect(accountVerified.value.userId).toEqual(user.id);
     user.verified = true;
     expect(await userRepo.getById(user.id)).toEqual(some(user));
+    expect(await getVerificationToken(user.id, env)).toEqual(null);
 
     const signedIn = await signIn({ email, password }, userRepo, env);
     if (!signedIn.ok) fail(signedIn.error);

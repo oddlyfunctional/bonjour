@@ -52,13 +52,14 @@ export type CreateAccount = {
 export type AccountCreated = {
   email: string;
   passwordHash: Hash;
-  verified: boolean;
+  verificationToken: string;
 };
 export type CreateAccountError = InvalidEmailError | InvalidPasswordError;
 
 export const createAccount = async (
   cmd: CreateAccount,
   hashingService: HashingService,
+  random: Random,
 ): Promise<Result<AccountCreated, CreateAccountError>> => {
   const password = validatePassword(cmd.password);
   if (!password.ok) {
@@ -73,7 +74,7 @@ export const createAccount = async (
   return ok({
     email: email.value,
     passwordHash: await hashingService.hash(password.value, cmd.staticPepper),
-    verified: false,
+    verificationToken: random.nextString(32),
   });
 };
 
@@ -110,7 +111,7 @@ export const signIn = async (
 
   return ok({
     userId: cmd.account.id,
-    sessionId: random.uuid(),
+    sessionId: random.nextUuid(),
     lastSignedInAt: clock.now(),
   });
 };
@@ -120,11 +121,15 @@ export type VerifyAccount = {
 };
 export type AccountVerified = {
   userId: UserId;
+  sessionId: SessionId;
+  lastSignedInAt: Date;
 };
 export type VerifyAccountError = AuthorizationError | "AlreadyVerified";
 export const verifyAccount = (
   cmd: VerifyAccount,
   userId: UserId,
+  random: Random,
+  clock: Clock,
 ): Result<AccountVerified, VerifyAccountError> => {
   if (userId !== cmd.account.id) {
     return error("Unauthorized");
@@ -132,7 +137,11 @@ export const verifyAccount = (
   if (cmd.account.verified) {
     return error("AlreadyVerified");
   }
-  return ok({ userId: cmd.account.id });
+  return ok({
+    userId: cmd.account.id,
+    sessionId: random.nextUuid(),
+    lastSignedInAt: clock.now(),
+  });
 };
 
 export type DeleteAccount = {
@@ -231,6 +240,9 @@ export type Repository = {
   getById: (userId: UserId) => Promise<Option<Account>>;
   getByEmail: (email: string) => Promise<Option<Account>>;
   getBySessionId: (sessionId: SessionId) => Promise<Option<Account>>;
+  getByVerificationToken: (
+    verificationToken: string,
+  ) => Promise<Option<Account>>;
   isEmailAvailable: (email: string) => Promise<boolean>;
   accountCreated: (event: AccountCreated) => Promise<UserId>;
   signedIn: (event: SignedIn) => Promise<void>;

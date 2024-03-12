@@ -60,6 +60,7 @@ BEGIN
         password_hash,
         verified,
         profile_id,
+        verification_token,
         created_at,
         updated_at,
         deleted_at
@@ -69,6 +70,7 @@ BEGIN
         OLD.password_hash,
         OLD.verified,
         OLD.profile_id,
+        OLD.verification_token,
         OLD.created_at,
         NOW(),
         OLD.deleted_at
@@ -255,7 +257,8 @@ CREATE TABLE public.schema_migrations (
 
 CREATE TABLE public.sessions (
     id uuid NOT NULL,
-    user_id integer NOT NULL
+    user_id integer NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 
@@ -272,7 +275,8 @@ CREATE TABLE public.users (
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     deleted_at timestamp without time zone,
     last_signed_in_at timestamp without time zone,
-    profile_id integer
+    profile_id integer,
+    verification_token character(32)
 );
 
 
@@ -288,7 +292,8 @@ CREATE TABLE public.users_audit (
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
     deleted_at timestamp without time zone,
-    profile_id integer
+    profile_id integer,
+    verification_token text
 );
 
 
@@ -435,7 +440,14 @@ CREATE INDEX messages_chat_id_sent_at_idx ON public.messages USING btree (chat_i
 -- Name: users_email_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX users_email_idx ON public.users USING btree (email);
+CREATE UNIQUE INDEX users_email_idx ON public.users USING btree (email);
+
+
+--
+-- Name: users_verification_token_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX users_verification_token_idx ON public.users USING btree (verification_token);
 
 
 --
@@ -546,4 +558,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20240312004951'),
     ('20240312010607'),
     ('20240312120103'),
-    ('20240312121030');
+    ('20240312121030'),
+    ('20240312183801');

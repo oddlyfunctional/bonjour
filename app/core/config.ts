@@ -3,9 +3,15 @@ import { ZodError, ZodType, z } from "zod";
 import { Result, ok, error } from "@/app/lib/result";
 import { StaticPepper, makeStaticPepper } from "@/app/lib/hash";
 
+export type MailerConfig = {
+  noReplyAddress: string;
+  accountVerificationTemplate: string;
+};
+
 export type Config = {
   sql: ClientConfig;
   staticPepper: StaticPepper;
+  mailer: MailerConfig;
 };
 
 type Store = { [key: string]: string | undefined };
@@ -21,18 +27,28 @@ const parseSqlConfig = (store: Store) =>
 const parseStaticPepper = (store: Store) =>
   z.string().safeParse(store.STATIC_PEPPER);
 
+const mailerSchema: ZodType<MailerConfig> = z.object({
+  noReplyAddress: z.string(),
+  accountVerificationTemplate: z.string(),
+});
+const parseMailerConfig = (store: Store) =>
+  mailerSchema.safeParse({
+    noReplyAddress: store.NO_REPLY_ADDRESS,
+    accountVerificationTemplate: store.ACCOUNT_VERIFICATION_TEMPLATE,
+  });
+
 export const make = (): Result<Config, ZodError> => {
   const sql = parseSqlConfig(process.env);
-  if (!sql.success) {
-    return error(sql.error);
-  }
   const staticPepper = parseStaticPepper(process.env);
-  if (!staticPepper.success) {
-    return error(staticPepper.error);
-  }
+  const mailer = parseMailerConfig(process.env);
+
+  if (!sql.success) return error(sql.error);
+  if (!staticPepper.success) return error(staticPepper.error);
+  if (!mailer.success) return error(mailer.error);
 
   return ok({
     sql: sql.data,
     staticPepper: makeStaticPepper(staticPepper.data),
+    mailer: mailer.data,
   });
 };
