@@ -1,7 +1,9 @@
 import { Result, ok, error } from "@/app/lib/result";
 import { Option } from "@/app/lib/option";
-import { UserId } from "@/app/core/core";
+import { SessionId, UserId } from "@/app/core/core";
 import { Hash, HashingService, StaticPepper } from "@/app/lib/hash";
+import { Clock } from "@/app/lib/clock";
+import { Random } from "@/app/lib/random";
 
 export type Account = {
   id: UserId;
@@ -70,8 +72,46 @@ export const createAccount = async (
 
   return ok({
     email: email.value,
-    passwordHash: await hashingService(password.value, cmd.staticPepper),
+    passwordHash: await hashingService.hash(password.value, cmd.staticPepper),
     verified: false,
+  });
+};
+
+export type SignIn = {
+  account: Account;
+  password: string;
+  staticPepper: StaticPepper;
+};
+export type SignedIn = {
+  userId: UserId;
+  sessionId: SessionId;
+  lastSignedInAt: Date;
+};
+export type SignInError = AuthorizationError | "NotVerified";
+export const signIn = async (
+  cmd: SignIn,
+  hashingService: HashingService,
+  clock: Clock,
+  random: Random,
+): Promise<Result<SignedIn, SignInError>> => {
+  if (
+    !(await hashingService.verify({
+      data: cmd.password,
+      hashed: cmd.account.passwordHash.value,
+      staticPepper: cmd.staticPepper,
+    }))
+  ) {
+    return error("Unauthorized");
+  }
+
+  if (!cmd.account.verified) {
+    return error("NotVerified");
+  }
+
+  return ok({
+    userId: cmd.account.id,
+    sessionId: random.uuid(),
+    lastSignedInAt: clock.now(),
   });
 };
 
@@ -180,13 +220,19 @@ export const updatePassword = async (
 
   return ok({
     userId,
-    newPasswordHash: await hashingService(newPassword.value, cmd.staticPepper),
+    newPasswordHash: await hashingService.hash(
+      newPassword.value,
+      cmd.staticPepper,
+    ),
   });
 };
 
 export type Repository = {
   getById: (userId: UserId) => Promise<Option<Account>>;
+  getByEmail: (email: string) => Promise<Option<Account>>;
   accountCreated: (event: AccountCreated) => Promise<UserId>;
+  signedIn: (event: SignedIn) => Promise<void>;
+  signOut: (sessionId: SessionId) => Promise<void>;
   accountVerified: (event: AccountVerified) => Promise<void>;
   accountDeleted: (event: AccountDeleted) => Promise<void>;
   emailUpdated: (event: EmailUpdated) => Promise<void>;

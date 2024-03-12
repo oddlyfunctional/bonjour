@@ -1,19 +1,17 @@
+import { describe, expect, it } from "@jest/globals";
 import {
   Account,
   createAccount,
   deleteAccount,
+  signIn,
   updateEmail,
   updatePassword,
   verifyAccount,
 } from "@/app/core/contexts/account/account";
-import {
-  Hash,
-  HashingService,
-  StaticPepper,
-  makeStaticPepper,
-} from "@/app/lib/hash";
+import * as Clock from "@/app/lib/clock";
+import { Hash, HashingService, makeStaticPepper } from "@/app/lib/hash";
 import { ok, error } from "@/app/lib/result";
-import { describe, expect, it } from "@jest/globals";
+import * as Random from "@/app/lib/random";
 
 describe("Account", () => {
   const makeHash = (value: string): Hash => ({
@@ -21,10 +19,15 @@ describe("Account", () => {
     value,
   });
 
-  const mockHashingService =
-    (returnValue: string): HashingService =>
-    async (_data: string, _pepper: StaticPepper) =>
-      makeHash(returnValue);
+  let mockHash = "some hash";
+  let mockVerify = true;
+  const hashingService: HashingService = {
+    hash: async () => makeHash(mockHash),
+    verify: async () => mockVerify,
+  };
+
+  const mockClock = Clock.mock();
+  const mockRandom = Random.mock();
 
   const verifiedAccount: Account = {
     id: 1,
@@ -37,6 +40,7 @@ describe("Account", () => {
 
   describe("createAccount", () => {
     it("returns event", async () => {
+      mockHash = "hashed password";
       expect(
         await createAccount(
           {
@@ -44,7 +48,7 @@ describe("Account", () => {
             password: "safePassword123!",
             staticPepper,
           },
-          mockHashingService("hashed password"),
+          hashingService,
         ),
       ).toEqual(
         ok({
@@ -63,7 +67,7 @@ describe("Account", () => {
             password: "safePassword123!",
             staticPepper,
           },
-          mockHashingService("hashed password"),
+          hashingService,
         ),
       ).toEqual(error("InvalidEmail"));
     });
@@ -76,7 +80,7 @@ describe("Account", () => {
             password: "short",
             staticPepper,
           },
-          mockHashingService("hashed password"),
+          hashingService,
         ),
       ).toEqual(error("PasswordTooShort"));
     });
@@ -89,9 +93,84 @@ describe("Account", () => {
             password: "invalidpassword",
             staticPepper,
           },
-          mockHashingService("hashed password"),
+          hashingService,
         ),
       ).toEqual(error("PasswordNotSafe"));
+    });
+  });
+
+  describe("signIn", () => {
+    it("returns event", async () => {
+      const now = new Date();
+      mockClock.setNow(now);
+      mockVerify = true;
+      mockRandom.setUuid("some session id");
+      expect(
+        await signIn(
+          {
+            account: verifiedAccount,
+            password: "some password",
+            staticPepper,
+          },
+          hashingService,
+          mockClock.clock,
+          mockRandom.random,
+        ),
+      ).toEqual(
+        ok({
+          userId: verifiedAccount.id,
+          sessionId: "some session id",
+          lastSignedInAt: now,
+        }),
+      );
+    });
+
+    it("fails if password is wrong", async () => {
+      mockVerify = false;
+      expect(
+        await signIn(
+          {
+            account: verifiedAccount,
+            password: "wrong password",
+            staticPepper,
+          },
+          hashingService,
+          mockClock.clock,
+          mockRandom.random,
+        ),
+      ).toEqual(error("Unauthorized"));
+    });
+
+    it("fails if account is not verified", async () => {
+      mockVerify = true;
+      expect(
+        await signIn(
+          {
+            account: { ...verifiedAccount, verified: false },
+            password: "some password",
+            staticPepper,
+          },
+          hashingService,
+          mockClock.clock,
+          mockRandom.random,
+        ),
+      ).toEqual(error("NotVerified"));
+    });
+
+    it("fails with unauthorized if both password is wrong and account is not verified", async () => {
+      mockVerify = false;
+      expect(
+        await signIn(
+          {
+            account: { ...verifiedAccount, verified: false },
+            password: "wrong password",
+            staticPepper,
+          },
+          hashingService,
+          mockClock.clock,
+          mockRandom.random,
+        ),
+      ).toEqual(error("Unauthorized"));
     });
   });
 
@@ -206,6 +285,7 @@ describe("Account", () => {
 
   describe("updatePassword", () => {
     it("returns event", async () => {
+      mockHash = "hashed password";
       expect(
         await updatePassword(
           {
@@ -214,7 +294,7 @@ describe("Account", () => {
             staticPepper,
           },
           verifiedAccount.id,
-          mockHashingService("hashed password"),
+          hashingService,
         ),
       ).toEqual(
         ok({
@@ -233,7 +313,7 @@ describe("Account", () => {
             staticPepper,
           },
           verifiedAccount.id + 1,
-          mockHashingService("hashed password"),
+          hashingService,
         ),
       ).toEqual(error("Unauthorized"));
     });
@@ -247,7 +327,7 @@ describe("Account", () => {
             staticPepper,
           },
           verifiedAccount.id,
-          mockHashingService("hashed password"),
+          hashingService,
         ),
       ).toEqual(error("PasswordTooShort"));
     });
@@ -261,7 +341,7 @@ describe("Account", () => {
             staticPepper,
           },
           verifiedAccount.id,
-          mockHashingService("hashed password"),
+          hashingService,
         ),
       ).toEqual(error("PasswordNotSafe"));
     });
@@ -275,7 +355,7 @@ describe("Account", () => {
             staticPepper,
           },
           verifiedAccount.id,
-          mockHashingService("hashed password"),
+          hashingService,
         ),
       ).toEqual(error("NotVerified"));
     });

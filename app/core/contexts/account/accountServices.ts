@@ -1,7 +1,9 @@
-import { UserId } from "@/app/core/core";
+import { SessionId, UserId } from "@/app/core/core";
 import { Env } from "@/app/core/env";
 import { Result, ok, error } from "@/app/lib/result";
 import * as Account from "./account";
+import { Clock } from "@/app/lib/clock";
+import { Random } from "@/app/lib/random";
 
 export const createAccount = async (
   { email, password }: { email: string; password: string },
@@ -28,6 +30,39 @@ export const createAccount = async (
     id,
   });
 };
+
+export const signIn = async (
+  {
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  },
+  repository: Account.Repository,
+  env: Env,
+): Promise<Result<Account.SignedIn, Account.SignInError>> => {
+  const account = await repository.getByEmail(email);
+  if (!account.some) {
+    return error("Unauthorized");
+  }
+
+  const event = await Account.signIn(
+    { account: account.value, password, staticPepper: env.staticPepper },
+    env.hashingService,
+    Clock,
+    Random,
+  );
+  if (!event.ok) {
+    return event;
+  }
+
+  await repository.signedIn(event.value);
+  return event;
+};
+
+export const signOut = (sessionId: SessionId, repository: Account.Repository) =>
+  repository.signOut(sessionId);
 
 export const verifyAccount = async (
   userId: UserId,

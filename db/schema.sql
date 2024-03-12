@@ -148,6 +148,16 @@ CREATE TABLE public.schema_migrations (
 
 
 --
+-- Name: sessions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.sessions (
+    id uuid NOT NULL,
+    user_id integer NOT NULL
+);
+
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -158,7 +168,8 @@ CREATE TABLE public.users (
     verified boolean NOT NULL,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    last_signed_in_at timestamp without time zone
 );
 
 
@@ -243,6 +254,14 @@ ALTER TABLE ONLY public.schema_migrations
 
 
 --
+-- Name: sessions sessions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sessions
+    ADD CONSTRAINT sessions_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -289,7 +308,7 @@ CREATE INDEX users_email_idx ON public.users USING btree (email);
 -- Name: users log_user_changes; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER log_user_changes AFTER UPDATE ON public.users FOR EACH ROW WHEN ((old.* IS DISTINCT FROM new.*)) EXECUTE FUNCTION public.log_user_changes();
+CREATE TRIGGER log_user_changes AFTER UPDATE ON public.users FOR EACH ROW WHEN ((((old.email)::text IS DISTINCT FROM (new.email)::text) OR (old.verified IS DISTINCT FROM new.verified))) EXECUTE FUNCTION public.log_user_changes();
 
 
 --
@@ -347,6 +366,14 @@ ALTER TABLE ONLY public.chats_users
 
 
 --
+-- Name: sessions fk_user; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sessions
+    ADD CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
 -- PostgreSQL database dump complete
 --
 
@@ -359,4 +386,6 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20240311184146'),
     ('20240311192103'),
     ('20240311192551'),
-    ('20240311200827');
+    ('20240311200827'),
+    ('20240312004951'),
+    ('20240312010607');

@@ -30,7 +30,10 @@ describe("accountServices", () => {
   let mockAccount: Option<Account> = none;
   const repository: Repository = {
     getById: async () => mockAccount,
+    getByEmail: async () => mockAccount,
     accountCreated: async () => mockUserId,
+    signedIn: async () => {},
+    signOut: async () => {},
     accountVerified: async () => {},
     accountDeleted: async () => {},
     emailUpdated: async () => {},
@@ -38,7 +41,11 @@ describe("accountServices", () => {
   };
 
   let mockHash = "some hash";
-  const hashingService: HashingService = async () => makeHash(mockHash);
+  let mockVerify = true;
+  const hashingService: HashingService = {
+    hash: async () => makeHash(mockHash),
+    verify: async () => mockVerify,
+  };
 
   const env: Env = {
     staticPepper: makeStaticPepper("some static pepper"),

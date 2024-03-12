@@ -59,8 +59,10 @@ $$;
 CREATE TRIGGER log_user_changes
     AFTER UPDATE ON users
     FOR EACH ROW
-    WHEN (OLD.* IS DISTINCT FROM NEW.*)
-    EXECUTE FUNCTION log_user_changes();
+    WHEN (
+        OLD.email IS DISTINCT FROM NEW.email
+        OR OLD.verified IS DISTINCT FROM NEW.verified
+    ) EXECUTE FUNCTION log_user_changes();
 
 
 -- migrate:down
