@@ -6,6 +6,7 @@ import * as UserRepo from "@/app/core/contexts/account/accountRepository";
 import {
   createAccount,
   deleteAccount,
+  signIn,
   updateEmail,
   updatePassword,
   verifyAccount,
@@ -41,6 +42,12 @@ describe("accountServices integration tests", () => {
     expect(accountVerified.value).toEqual({ userId: user.id });
     user.verified = true;
     expect(await userRepo.getById(user.id)).toEqual(some(user));
+
+    const signedIn = await signIn({ email, password }, userRepo, env);
+    if (!signedIn.ok) fail(signedIn.error);
+    expect(await userRepo.getBySessionId(signedIn.value.sessionId)).toEqual(
+      some(user),
+    );
 
     const newEmail = "_" + randomBytes(10).toString("hex") + "@email.com";
     const emailUpdated = await updateEmail(newEmail, user.id, userRepo);

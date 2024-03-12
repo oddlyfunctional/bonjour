@@ -9,7 +9,13 @@ export const createAccount = async (
   { email, password }: { email: string; password: string },
   repository: Account.Repository,
   env: Env,
-): Promise<Result<Account.Account, Account.CreateAccountError>> => {
+): Promise<
+  Result<Account.Account, Account.CreateAccountError | "EmailAlreadyTaken">
+> => {
+  if (!(await repository.isEmailAvailable(email))) {
+    return error("EmailAlreadyTaken");
+  }
+
   const event = await Account.createAccount(
     {
       email,
@@ -50,8 +56,8 @@ export const signIn = async (
   const event = await Account.signIn(
     { account: account.value, password, staticPepper: env.staticPepper },
     env.hashingService,
-    Clock,
-    Random,
+    env.clock,
+    env.random,
   );
   if (!event.ok) {
     return event;

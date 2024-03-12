@@ -69,6 +69,42 @@ export const make = (sql: Sql): Repository => ({
       passwordHash: { _tag: "Hash", value: account.value.passwordHash },
     });
   },
+  getBySessionId: async (sessionId: SessionId) => {
+    const account = await sql.queryOne(
+      SQL`
+      SELECT
+        users.id,
+        email,
+        password_hash AS "passwordHash",
+        verified
+      FROM users
+      INNER JOIN sessions
+        ON sessions.user_id = users.id
+      WHERE
+        sessions.id = ${sessionId}
+        AND deleted_at IS NULL
+    `,
+      schema,
+    );
+
+    if (!account.some) {
+      return account;
+    }
+    return some({
+      ...account.value,
+      passwordHash: { _tag: "Hash", value: account.value.passwordHash },
+    });
+  },
+  isEmailAvailable: async (email: string) => {
+    const exists = await sql.queryOne(
+      SQL`
+      SELECT EXISTS(SELECT 1 FROM users WHERE email = ${email}) AS exists
+    `,
+      z.object({ exists: z.boolean() }),
+    );
+
+    return exists.some ? !exists.value.exists : true;
+  },
   accountCreated: async (event: AccountCreated) => {
     const { id: userId } = await sql.insertOne(
       SQL`
@@ -90,7 +126,7 @@ export const make = (sql: Sql): Repository => ({
     await sql.mutate(SQL`
       UPDATE users
       SET last_signed_in_at = ${event.lastSignedInAt}
-      WHERE user_id = ${event.userId}
+      WHERE id = ${event.userId}
     `);
     await sql.mutate(SQL`
       INSERT INTO sessions (id, user_id)
