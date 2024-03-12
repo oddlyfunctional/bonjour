@@ -21,6 +21,32 @@ CREATE TYPE public.delivery_status AS ENUM (
 
 
 --
+-- Name: log_profile_changes(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.log_profile_changes() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    INSERT INTO profiles_audit (
+        id,
+        name,
+        avatar_url,
+        created_at,
+        updated_at
+    ) VALUES (
+        OLD.id,
+        OLD.name,
+        OLD.avatar_url,
+        OLD.created_at,
+        NOW()
+    );
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: log_user_changes(); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -28,11 +54,21 @@ CREATE FUNCTION public.log_user_changes() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
-    INSERT INTO users_audit VALUES (
+    INSERT INTO users_audit (
+        id,
+        email,
+        password_hash,
+        verified,
+        profile_id,
+        created_at,
+        updated_at,
+        deleted_at
+    ) VALUES (
         OLD.id,
         OLD.email,
         OLD.password_hash,
         OLD.verified,
+        OLD.profile_id,
         OLD.created_at,
         NOW(),
         OLD.deleted_at
@@ -139,6 +175,72 @@ ALTER SEQUENCE public.messages_id_seq OWNED BY public.messages.id;
 
 
 --
+-- Name: profiles; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.profiles (
+    id integer NOT NULL,
+    name character varying,
+    avatar_url character varying,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
+-- Name: profiles_audit; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.profiles_audit (
+    id integer NOT NULL,
+    name character varying,
+    avatar_url character varying,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+--
+-- Name: profiles_audit_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.profiles_audit_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: profiles_audit_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.profiles_audit_id_seq OWNED BY public.profiles_audit.id;
+
+
+--
+-- Name: profiles_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.profiles_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: profiles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.profiles_id_seq OWNED BY public.profiles.id;
+
+
+--
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -169,7 +271,8 @@ CREATE TABLE public.users (
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     deleted_at timestamp without time zone,
-    last_signed_in_at timestamp without time zone
+    last_signed_in_at timestamp without time zone,
+    profile_id integer
 );
 
 
@@ -184,7 +287,8 @@ CREATE TABLE public.users_audit (
     verified boolean,
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    profile_id integer
 );
 
 
@@ -223,6 +327,20 @@ ALTER TABLE ONLY public.messages ALTER COLUMN id SET DEFAULT nextval('public.mes
 
 
 --
+-- Name: profiles id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.profiles ALTER COLUMN id SET DEFAULT nextval('public.profiles_id_seq'::regclass);
+
+
+--
+-- Name: profiles_audit id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.profiles_audit ALTER COLUMN id SET DEFAULT nextval('public.profiles_audit_id_seq'::regclass);
+
+
+--
 -- Name: users id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -243,6 +361,22 @@ ALTER TABLE ONLY public.chats
 
 ALTER TABLE ONLY public.messages
     ADD CONSTRAINT messages_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: profiles_audit profiles_audit_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.profiles_audit
+    ADD CONSTRAINT profiles_audit_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: profiles profiles_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.profiles
+    ADD CONSTRAINT profiles_pkey PRIMARY KEY (id);
 
 
 --
@@ -305,6 +439,13 @@ CREATE INDEX users_email_idx ON public.users USING btree (email);
 
 
 --
+-- Name: profiles log_profile_changes; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER log_profile_changes AFTER UPDATE ON public.profiles FOR EACH ROW WHEN ((((old.name)::text IS DISTINCT FROM (new.name)::text) OR ((old.avatar_url)::text IS DISTINCT FROM (new.avatar_url)::text))) EXECUTE FUNCTION public.log_profile_changes();
+
+
+--
 -- Name: users log_user_changes; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -316,6 +457,13 @@ CREATE TRIGGER log_user_changes AFTER UPDATE ON public.users FOR EACH ROW WHEN (
 --
 
 CREATE TRIGGER update_chat_timestamp BEFORE UPDATE ON public.chats FOR EACH ROW WHEN ((old.* IS DISTINCT FROM new.*)) EXECUTE FUNCTION public.update_timestamp();
+
+
+--
+-- Name: profiles update_profiles_timestamp; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER update_profiles_timestamp BEFORE UPDATE ON public.profiles FOR EACH ROW WHEN ((old.* IS DISTINCT FROM new.*)) EXECUTE FUNCTION public.update_timestamp();
 
 
 --
@@ -358,6 +506,14 @@ ALTER TABLE ONLY public.chats_users
 
 
 --
+-- Name: users fk_profile; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT fk_profile FOREIGN KEY (profile_id) REFERENCES public.profiles(id);
+
+
+--
 -- Name: chats_users fk_user; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -388,4 +544,6 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20240311192551'),
     ('20240311200827'),
     ('20240312004951'),
-    ('20240312010607');
+    ('20240312010607'),
+    ('20240312120103'),
+    ('20240312121030');

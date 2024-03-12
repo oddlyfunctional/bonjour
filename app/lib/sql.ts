@@ -1,6 +1,6 @@
 import { ZodType } from "zod";
 import { Option, none, some } from "./option";
-import type { SQLStatement } from "sql-template-strings";
+import { SQL, type SQLStatement } from "sql-template-strings";
 import { Pool } from "pg";
 
 export interface Sql {
@@ -66,4 +66,16 @@ export const makePg = (client: Pool): Sql => {
     mutate,
     insertOne,
   };
+};
+
+export const joinStatements = (
+  statements: Array<SQLStatement>,
+  separator: string,
+) => {
+  const joined = SQL``;
+  statements.forEach((statement, i) => {
+    joined.append(statement);
+    if (i < statements.length - 1) joined.append(separator);
+  });
+  return joined;
 };

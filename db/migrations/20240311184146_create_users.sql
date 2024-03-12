@@ -42,7 +42,15 @@ CREATE FUNCTION log_user_changes()
     LANGUAGE PLPGSQL
 AS $$
 BEGIN
-    INSERT INTO users_audit VALUES (
+    INSERT INTO users_audit (
+        id,
+        email,
+        password_hash,
+        verified,
+        created_at,
+        updated_at,
+        deleted_at
+    ) VALUES (
         OLD.id,
         OLD.email,
         OLD.password_hash,

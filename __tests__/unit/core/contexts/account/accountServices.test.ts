@@ -1,3 +1,4 @@
+import { describe, expect, it } from "@jest/globals";
 import { Account, Repository } from "@/app/core/contexts/account/account";
 import {
   createAccount,
@@ -10,7 +11,6 @@ import { Env } from "@/app/core/env";
 import { Hash, HashingService, makeStaticPepper } from "@/app/lib/hash";
 import { Option, none, some } from "@/app/lib/option";
 import { ok, error } from "@/app/lib/result";
-import { describe, expect, it } from "@jest/globals";
 
 const makeHash = (value: string): Hash => ({
   _tag: "Hash",
