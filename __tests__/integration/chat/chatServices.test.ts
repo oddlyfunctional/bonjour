@@ -7,8 +7,8 @@ import { makeUser } from "@/__tests__/factories";
 import {
   addMember,
   changeAdmin,
-  create,
-  remove,
+  createChat,
+  removeChat,
   removeMember,
 } from "@/app/core/contexts/chat/chatServices";
 import { fail } from "assert";
@@ -40,7 +40,7 @@ describe("chatServices integration tests", () => {
   test("chat services", async () => {
     const { user, chatRepo, config, env } = world;
 
-    const chat = await create("some chat", user.id, chatRepo);
+    const chat = await createChat("some chat", user.id, chatRepo);
     expect(await chatRepo.getById(chat.id)).toEqual(some(chat));
 
     const newAdmin = await makeUser(config, env);
@@ -83,7 +83,7 @@ describe("chatServices integration tests", () => {
     chat.members = [newAdmin.id];
     expect(await chatRepo.getById(chat.id)).toEqual(some(chat));
 
-    const chatRemoved = await remove(chat.id, newAdmin.id, chatRepo);
+    const chatRemoved = await removeChat(chat.id, newAdmin.id, chatRepo);
     if (!chatRemoved.ok) fail(chatRemoved.error);
     expect(chatRemoved.value).toEqual({ chatId: chat.id });
     expect(await chatRepo.getById(chat.id)).toEqual(none);

@@ -2,7 +2,7 @@ import { Result, error } from "@/app/lib/result";
 import { ChatId, UserId } from "@/app/core/core";
 import * as Chat from "./chat";
 
-export const create = async (
+export const createChat = async (
   name: string,
   userId: UserId,
   repository: Chat.Repository,
@@ -16,7 +16,7 @@ export const create = async (
 };
 
 export type RemoveChatError = Chat.DeleteChatError | "ChatNotFound";
-export const remove = async (
+export const removeChat = async (
   chatId: ChatId,
   userId: UserId,
   repository: Chat.Repository,

@@ -13,6 +13,7 @@ CREATE TABLE chats_users (
 );
 
 CREATE UNIQUE INDEX chats_users_idx ON chats_users(user_id, chat_id);
+CREATE INDEX chats_users_chat_id_idx ON chats_users(chat_id);
 
 -- migrate:down
 DROP TABLE chats_users;

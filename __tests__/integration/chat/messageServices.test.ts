@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, test } from "@jest/globals";
-import { create } from "@/app/core/contexts/chat/chatServices";
+import { createChat } from "@/app/core/contexts/chat/chatServices";
 import { load } from "@/app/core/startup";
 import * as ChatRepo from "@/app/core/contexts/chat/chatRepository";
 import * as MessageRepo from "@/app/core/contexts/chat/messageRepository";
@@ -28,7 +28,7 @@ describe("messageServices integration tests", () => {
     const msgRepo = MessageRepo.make(env.sql);
 
     const user = await makeUser(config, env);
-    const chat = await create("some chat", user.id, chatRepo);
+    const chat = await createChat("some chat", user.id, chatRepo);
 
     world = {
       user,

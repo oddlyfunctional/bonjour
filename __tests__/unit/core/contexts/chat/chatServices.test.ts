@@ -2,8 +2,8 @@ import { describe, expect, it } from "@jest/globals";
 import { ok, error } from "@/app/lib/result";
 import { Option, none, some } from "@/app/lib/option";
 import {
-  create,
-  remove,
+  createChat,
+  removeChat,
   changeAdmin,
   addMember,
   removeMember,
@@ -26,6 +26,7 @@ describe("chatServices", () => {
   let mockChatId = chatId;
   const repository: Repository = {
     getById: async () => mockChat,
+    getAllByUserId: async () => [],
     chatCreated: async () => mockChatId,
     chatDeleted: async () => {},
     adminChanged: async () => {},
@@ -33,10 +34,10 @@ describe("chatServices", () => {
     memberRemoved: async () => {},
   };
 
-  describe("create", () => {
+  describe("createChat", () => {
     it("succeeds", async () => {
       mockChatId = chatId + 1;
-      expect(await create("some chat", userId, repository)).toEqual({
+      expect(await createChat("some chat", userId, repository)).toEqual({
         id: mockChatId,
         name: "some chat",
         adminId: userId,
@@ -45,15 +46,17 @@ describe("chatServices", () => {
     });
   });
 
-  describe("remove", () => {
+  describe("removeChat", () => {
     it("succeeds", async () => {
       mockChat = some(chat);
-      expect(await remove(chatId, userId, repository)).toEqual(ok({ chatId }));
+      expect(await removeChat(chatId, userId, repository)).toEqual(
+        ok({ chatId }),
+      );
     });
 
     it("fails if can't find chat", async () => {
       mockChat = none;
-      expect(await remove(chatId, userId, repository)).toEqual(
+      expect(await removeChat(chatId, userId, repository)).toEqual(
         error("ChatNotFound"),
       );
     });

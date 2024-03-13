@@ -136,6 +136,7 @@ export const removeMember = (
 
 export interface Repository {
   getById: (chatId: ChatId) => Promise<Option<Chat>>;
+  getAllByUserId: (userId: UserId) => Promise<Array<Chat>>;
   chatCreated: (event: ChatCreated) => Promise<ChatId>;
   chatDeleted: (event: ChatDeleted) => Promise<void>;
   adminChanged: (event: AdminChanged) => Promise<void>;

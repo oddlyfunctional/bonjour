@@ -1,7 +1,7 @@
 import { ZodType, z } from "zod";
 import SQL from "sql-template-strings";
 import { Sql } from "@/app/lib/sql";
-import { ChatId } from "@/app/core/core";
+import { ChatId, UserId } from "@/app/core/core";
 import {
   AdminChanged,
   Chat,
@@ -35,6 +35,26 @@ export const make = (sql: Sql): Repository => ({
       FROM chats
       WHERE id = ${chatId}
     `,
+      schema,
+    ),
+  getAllByUserId: (userId: UserId) =>
+    sql.query(
+      SQL`
+      SELECT
+        id,
+        admin_id AS "adminId",
+        name,
+        ARRAY(
+          SELECT user_id
+          FROM chats_users
+          WHERE chat_id = id
+        ) AS members
+      FROM chats
+      INNER JOIN chats_users
+        ON chats_users.chat_id = chats.id
+      WHERE
+        chats_users.user_id = ${userId}
+      `,
       schema,
     ),
   chatCreated: async ({ chat }: ChatCreated) => {

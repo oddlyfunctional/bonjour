@@ -10,7 +10,9 @@ export default async function Home() {
     <div>
       <h1>Hello World</h1>
       {user.some ? (
-        <SignOut />
+        <>
+          <SignOut />
+        </>
       ) : (
         <>
           <SignIn />
