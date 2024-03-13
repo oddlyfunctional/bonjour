@@ -1,7 +1,7 @@
+import { Pool } from "pg";
+import { SQL, type SQLStatement } from "sql-template-strings";
 import { ZodType } from "zod";
 import { Option, none, some } from "./option";
-import { SQL, type SQLStatement } from "sql-template-strings";
-import { Pool } from "pg";
 
 export interface Sql {
   query: <T>(sql: SQLStatement, schema: ZodType<T>) => Promise<Array<T>>;
@@ -10,6 +10,7 @@ export interface Sql {
   mutate: <T>(
     sql: SQLStatement,
   ) => Promise<{ rows: Array<T>; rowCount: number }>;
+  close: () => Promise<void>;
 }
 
 class EmptyResultSet extends Error {
@@ -31,11 +32,11 @@ class MoreThanOneRow extends Error {
 }
 
 export const makePg = (client: Pool): Sql => {
-  const query = async <T,>(sql: SQLStatement, schema: ZodType<T>) => {
+  const query = async <T>(sql: SQLStatement, schema: ZodType<T>) => {
     const result = await client.query(sql);
     return result.rows.map((x) => schema.parse(x));
   };
-  const queryOne = async <T,>(sql: SQLStatement, schema: ZodType<T>) => {
+  const queryOne = async <T>(sql: SQLStatement, schema: ZodType<T>) => {
     const rows = await query(sql, schema);
     if (rows.length === 0) {
       return none;
@@ -49,7 +50,7 @@ export const makePg = (client: Pool): Sql => {
     const { rows, rowCount } = await client.query(sql);
     return { rows: rows || [], rowCount: rowCount || 0 };
   };
-  const insertOne = async <T,>(sql: SQLStatement, schema: ZodType<T>) => {
+  const insertOne = async <T>(sql: SQLStatement, schema: ZodType<T>) => {
     const { rows } = await mutate(sql);
     if (rows.length === 0) {
       throw new EmptyResultSet(sql);
@@ -65,6 +66,7 @@ export const makePg = (client: Pool): Sql => {
     queryOne,
     mutate,
     insertOne,
+    close: () => client.end(),
   };
 };
 
