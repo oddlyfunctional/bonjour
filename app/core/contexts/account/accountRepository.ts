@@ -1,4 +1,7 @@
+import { SessionId, UserId } from "@/app/core/core";
 import { Sql } from "@/app/lib/sql";
+import SQL from "sql-template-strings";
+import { z } from "zod";
 import {
   AccountCreated,
   AccountDeleted,
@@ -8,10 +11,6 @@ import {
   Repository,
   SignedIn,
 } from "./account";
-import { z } from "zod";
-import SQL from "sql-template-strings";
-import { SessionId, UserId } from "@/app/core/core";
-import { some } from "@/app/lib/option";
 
 const schema = z.object({
   id: z.number(),
@@ -58,13 +57,12 @@ export const make = (sql: Sql): Repository => {
         schema,
       );
 
-      if (!account.some) {
-        return account;
-      }
-      return some({
-        ...account.value,
-        passwordHash: { _tag: "Hash", value: account.value.passwordHash },
-      });
+      if (!account) return account;
+
+      return {
+        ...account,
+        passwordHash: { _tag: "Hash", value: account.passwordHash },
+      };
     },
     getByEmail: async (email: string) => {
       const account = await sql.queryOne(
@@ -82,13 +80,12 @@ export const make = (sql: Sql): Repository => {
         schema,
       );
 
-      if (!account.some) {
-        return account;
-      }
-      return some({
-        ...account.value,
-        passwordHash: { _tag: "Hash", value: account.value.passwordHash },
-      });
+      if (!account) return account;
+
+      return {
+        ...account,
+        passwordHash: { _tag: "Hash", value: account.passwordHash },
+      };
     },
     getBySessionId: async (sessionId: SessionId) => {
       const account = await sql.queryOne(
@@ -108,13 +105,12 @@ export const make = (sql: Sql): Repository => {
         schema,
       );
 
-      if (!account.some) {
-        return account;
-      }
-      return some({
-        ...account.value,
-        passwordHash: { _tag: "Hash", value: account.value.passwordHash },
-      });
+      if (!account) return account;
+
+      return {
+        ...account,
+        passwordHash: { _tag: "Hash", value: account.passwordHash },
+      };
     },
     getByVerificationToken: async (verificationToken: string) => {
       const account = await sql.queryOne(
@@ -132,13 +128,12 @@ export const make = (sql: Sql): Repository => {
         schema,
       );
 
-      if (!account.some) {
-        return account;
-      }
-      return some({
-        ...account.value,
-        passwordHash: { _tag: "Hash", value: account.value.passwordHash },
-      });
+      if (!account) return account;
+
+      return {
+        ...account,
+        passwordHash: { _tag: "Hash", value: account.passwordHash },
+      };
     },
     isEmailAvailable: async (email: string) => {
       const exists = await sql.queryOne(
@@ -148,7 +143,7 @@ export const make = (sql: Sql): Repository => {
         z.object({ exists: z.boolean() }),
       );
 
-      return exists.some ? !exists.value.exists : true;
+      return exists ? !exists.exists : true;
     },
     accountCreated: async (event: AccountCreated) => {
       const { id: userId } = await sql.insertOne(

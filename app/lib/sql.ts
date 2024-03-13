@@ -1,7 +1,7 @@
 import { Pool } from "pg";
 import { SQL, type SQLStatement } from "sql-template-strings";
 import { ZodType } from "zod";
-import { Option, none, some } from "./option";
+import { Option, none } from "./option";
 
 export interface Sql {
   query: <T>(sql: SQLStatement, schema: ZodType<T>) => Promise<Array<T>>;
@@ -41,7 +41,7 @@ export const makePg = (client: Pool): Sql => {
     if (rows.length === 0) {
       return none;
     } else if (rows.length === 1) {
-      return some(rows[0]);
+      return rows[0];
     } else {
       throw new MoreThanOneRow(sql);
     }

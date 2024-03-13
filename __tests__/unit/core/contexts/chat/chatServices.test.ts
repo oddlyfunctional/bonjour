@@ -1,14 +1,14 @@
-import { describe, expect, it } from "@jest/globals";
-import { ok, error } from "@/app/lib/result";
-import { Option, none, some } from "@/app/lib/option";
+import { Chat, Repository } from "@/app/core/contexts/chat/chat";
 import {
+  addMember,
+  changeAdmin,
   createChat,
   removeChat,
-  changeAdmin,
-  addMember,
   removeMember,
 } from "@/app/core/contexts/chat/chatServices";
-import { Chat, Repository } from "@/app/core/contexts/chat/chat";
+import { Option, none } from "@/app/lib/option";
+import { error, ok } from "@/app/lib/result";
+import { describe, expect, it } from "@jest/globals";
 
 describe("chatServices", () => {
   const chatId = 1;
@@ -48,7 +48,7 @@ describe("chatServices", () => {
 
   describe("removeChat", () => {
     it("succeeds", async () => {
-      mockChat = some(chat);
+      mockChat = chat;
       expect(await removeChat(chatId, userId, repository)).toEqual(
         ok({ chatId }),
       );
@@ -64,7 +64,7 @@ describe("chatServices", () => {
 
   describe("changeAdmin", () => {
     it("succeeds", async () => {
-      mockChat = some(chat);
+      mockChat = chat;
       expect(
         await changeAdmin(
           { chatId, newAdminId: anotherUserId },
@@ -90,7 +90,7 @@ describe("chatServices", () => {
     const newMemberId = anotherUserId + 1;
 
     it("succeeds", async () => {
-      mockChat = some(chat);
+      mockChat = chat;
       expect(
         await addMember(
           {
@@ -120,7 +120,7 @@ describe("chatServices", () => {
 
   describe("removeMember", () => {
     it("succeeds", async () => {
-      mockChat = some(chat);
+      mockChat = chat;
       expect(
         await removeMember(
           { chatId, memberId: anotherUserId },

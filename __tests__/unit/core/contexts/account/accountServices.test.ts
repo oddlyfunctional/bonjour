@@ -1,5 +1,6 @@
-import { describe, expect, it } from "@jest/globals";
+import { Config } from "@/app/core/config";
 import { Account, Repository } from "@/app/core/contexts/account/account";
+import * as AccountMailer from "@/app/core/contexts/account/accountMailer";
 import {
   createAccount,
   deleteAccount,
@@ -9,14 +10,13 @@ import {
   verifyAccount,
 } from "@/app/core/contexts/account/accountServices";
 import { Env } from "@/app/core/env";
-import { Hash, HashingService, makeStaticPepper } from "@/app/lib/hash";
-import { Option, none, some } from "@/app/lib/option";
-import { ok, error } from "@/app/lib/result";
 import * as Clock from "@/app/lib/clock";
-import * as Random from "@/app/lib/random";
+import { Hash, HashingService, makeStaticPepper } from "@/app/lib/hash";
 import * as Mailer from "@/app/lib/mailer";
-import * as AccountMailer from "@/app/core/contexts/account/accountMailer";
-import { Config } from "@/app/core/config";
+import { Option, none } from "@/app/lib/option";
+import * as Random from "@/app/lib/random";
+import { error, ok } from "@/app/lib/result";
+import { describe, expect, it } from "@jest/globals";
 
 const makeHash = (value: string): Hash => ({
   _tag: "Hash",
@@ -137,7 +137,7 @@ describe("accountServices", () => {
     const now = new Date();
 
     it("succeeds", async () => {
-      mockAccount = some(verifiedAccount);
+      mockAccount = verifiedAccount;
       mockClock.setNow(now);
       mockRandom.setNextUuid("some session id");
       mockVerify = true;
@@ -172,7 +172,7 @@ describe("accountServices", () => {
 
   describe("verifyAccount", () => {
     it("succeeds", async () => {
-      mockAccount = some({ ...verifiedAccount, verified: false });
+      mockAccount = { ...verifiedAccount, verified: false };
       expect(await verifyAccount("some token", repository, env)).toEqual(
         ok({
           userId: verifiedAccount.id,
@@ -190,7 +190,7 @@ describe("accountServices", () => {
 
   describe("deleteAccount", () => {
     it("succeeds", async () => {
-      mockAccount = some({ ...verifiedAccount, verified: false });
+      mockAccount = { ...verifiedAccount, verified: false };
       expect(await deleteAccount(verifiedAccount.id, repository)).toEqual(
         ok({
           userId: verifiedAccount.id,
@@ -208,7 +208,7 @@ describe("accountServices", () => {
 
   describe("updateEmail", () => {
     it("succeeds", async () => {
-      mockAccount = some(verifiedAccount);
+      mockAccount = verifiedAccount;
       expect(
         await updateEmail("new@email.com", verifiedAccount.id, repository),
       ).toEqual(
@@ -229,7 +229,7 @@ describe("accountServices", () => {
 
   describe("updatePassword", () => {
     it("succeeds", async () => {
-      mockAccount = some(verifiedAccount);
+      mockAccount = verifiedAccount;
       mockHash = "hashed password";
       expect(
         await updatePassword(

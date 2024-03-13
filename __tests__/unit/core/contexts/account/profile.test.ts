@@ -1,11 +1,11 @@
-import { describe, expect, it } from "@jest/globals";
 import {
   Profile,
   createProfile,
   updateProfile,
 } from "@/app/core/contexts/account/profile";
-import { none, some } from "@/app/lib/option";
-import { ok, error } from "@/app/lib/result";
+import { none } from "@/app/lib/option";
+import { error, ok } from "@/app/lib/result";
+import { describe, expect, it } from "@jest/globals";
 
 describe("Profile", () => {
   const userId = 1;
@@ -22,7 +22,7 @@ describe("Profile", () => {
           {
             ownerId: userId,
             name: "John Doe",
-            avatarUrl: some("http://storage.com/avatar.jpg"),
+            avatarUrl: "http://storage.com/avatar.jpg",
           },
           userId,
         ),
@@ -30,7 +30,7 @@ describe("Profile", () => {
         ok({
           ownerId: userId,
           name: "John Doe",
-          avatarUrl: some("http://storage.com/avatar.jpg"),
+          avatarUrl: "http://storage.com/avatar.jpg",
         }),
       );
     });
@@ -41,7 +41,7 @@ describe("Profile", () => {
           {
             ownerId: userId,
             name: "John Doe",
-            avatarUrl: some("http://storage.com/avatar.jpg"),
+            avatarUrl: "http://storage.com/avatar.jpg",
           },
           userId + 1,
         ),
@@ -55,16 +55,16 @@ describe("Profile", () => {
         updateProfile(
           {
             profile,
-            name: some("Jane Doe"),
-            avatarUrl: some("http://storage.com/avatar.jpg"),
+            name: "Jane Doe",
+            avatarUrl: "http://storage.com/avatar.jpg",
           },
           userId,
         ),
       ).toEqual(
         ok({
           ownerId: userId,
-          name: some("Jane Doe"),
-          avatarUrl: some("http://storage.com/avatar.jpg"),
+          name: "Jane Doe",
+          avatarUrl: "http://storage.com/avatar.jpg",
         }),
       );
     });
@@ -78,8 +78,8 @@ describe("Profile", () => {
               name: "John Doe",
               avatarUrl: none,
             },
-            name: some("Jane Doe"),
-            avatarUrl: some("http://storage.com/avatar.jpg"),
+            name: "Jane Doe",
+            avatarUrl: "http://storage.com/avatar.jpg",
           },
           userId + 1,
         ),

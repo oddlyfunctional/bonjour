@@ -1,6 +1,6 @@
 import { UserId } from "@/app/core/core";
 import { Option } from "@/app/lib/option";
-import { Result, ok, error } from "@/app/lib/result";
+import { Result, error, ok } from "@/app/lib/result";
 
 export type Profile = {
   ownerId: UserId;
@@ -47,7 +47,7 @@ export const updateProfile = (
   if (userId !== cmd.profile.ownerId) {
     return error("Unauthorized");
   }
-  if ([cmd.name, cmd.avatarUrl].every((x) => !x.some)) {
+  if ([cmd.name, cmd.avatarUrl].every((x) => !x)) {
     return error("NoChanges");
   }
   return ok({

@@ -73,7 +73,7 @@ export const isSignedIn = async () => {
   const { env } = await load();
   const accountRepo = AccountRepo.make(env.sql);
   const user = await accountRepo.getBySessionId(sessionId);
-  return user.some;
+  return user;
 };
 
 export const currentUser = async () => {
@@ -84,6 +84,6 @@ export const currentUser = async () => {
   const { env } = await load();
   const accountRepo = AccountRepo.make(env.sql);
   const user = await accountRepo.getBySessionId(sessionId);
-  if (!user.some) throw new Error("Unauthorized");
-  return user.value;
+  if (!user) throw new Error("Unauthorized");
+  return user;
 };

@@ -11,7 +11,6 @@ import { SignOut } from "@/app/components/SignOut";
 import type { Profile } from "@/app/core/contexts/account/profile";
 import type { Chat } from "@/app/core/contexts/chat/chat";
 import type { UserId } from "@/app/core/core";
-import * as Option from "@/app/lib/option";
 import { useState } from "react";
 
 type DrawerContent =
@@ -90,7 +89,7 @@ export const Panel = ({
       <div className="flex flex-row items-center justify-between p-4">
         <Avatar
           userId={currentUserId}
-          src={Option.toUndefined(profile.avatarUrl)}
+          src={profile.avatarUrl}
           size="md"
           className="cursor-pointer"
           onClick={() => setDrawerContent({ _tag: "Profile", profile })}

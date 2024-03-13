@@ -1,15 +1,15 @@
-import { beforeAll, describe, expect, test } from "@jest/globals";
-import { fail } from "assert";
+import { makeUser } from "@/__tests__/factories";
 import { Repository as ProfileRepository } from "@/app/core/contexts/account/profile";
 import * as ProfileRepo from "@/app/core/contexts/account/profileRepository";
-import { load } from "@/app/core/startup";
-import { makeUser } from "@/__tests__/factories";
-import { UserId } from "@/app/core/core";
 import {
   createProfile,
   updateProfile,
 } from "@/app/core/contexts/account/profileServices";
-import { none, some } from "@/app/lib/option";
+import { UserId } from "@/app/core/core";
+import { load } from "@/app/core/startup";
+import { none } from "@/app/lib/option";
+import { beforeAll, describe, expect, test } from "@jest/globals";
+import { fail } from "assert";
 
 describe("profileServices integration tests", () => {
   let world: {
@@ -37,21 +37,21 @@ describe("profileServices integration tests", () => {
     );
     if (!profileResult.ok) fail(profileResult.error);
     const profile = profileResult.value;
-    expect(await profileRepo.getByOwnerId(userId)).toEqual(some(profile));
+    expect(await profileRepo.getByOwnerId(userId)).toEqual(profile);
 
     const profileUpdated = await updateProfile(
-      { name: some("Jane Doe"), avatarUrl: some("some url") },
+      { name: "Jane Doe", avatarUrl: "some url" },
       userId,
       profileRepo,
     );
     if (!profileUpdated.ok) fail(profileUpdated.error);
     expect(profileUpdated.value).toEqual({
       ownerId: userId,
-      name: some("Jane Doe"),
-      avatarUrl: some("some url"),
+      name: "Jane Doe",
+      avatarUrl: "some url",
     });
     profile.name = "Jane Doe";
-    profile.avatarUrl = some("some url");
-    expect(await profileRepo.getByOwnerId(userId)).toEqual(some(profile));
+    profile.avatarUrl = "some url";
+    expect(await profileRepo.getByOwnerId(userId)).toEqual(profile);
   });
 });

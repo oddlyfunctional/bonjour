@@ -1,6 +1,6 @@
 import { SessionId, UserId } from "@/app/core/core";
 import { Env } from "@/app/core/env";
-import { Result, ok, error } from "@/app/lib/result";
+import { Result, error, ok } from "@/app/lib/result";
 import * as Account from "./account";
 import { AccountMailer } from "./accountMailer";
 
@@ -53,12 +53,10 @@ export const signIn = async (
   env: Env,
 ): Promise<Result<Account.SignedIn, Account.SignInError>> => {
   const account = await repository.getByEmail(email);
-  if (!account.some) {
-    return error("Unauthorized");
-  }
+  if (!account) return error("Unauthorized");
 
   const event = await Account.signIn(
-    { account: account.value, password, staticPepper: env.staticPepper },
+    { account: account, password, staticPepper: env.staticPepper },
     env.hashingService,
     env.clock,
     env.random,
@@ -85,13 +83,11 @@ export const verifyAccount = async (
   >
 > => {
   const account = await repository.getByVerificationToken(verificationToken);
-  if (!account.some) {
-    return error("AccountNotFound");
-  }
+  if (!account) return error("AccountNotFound");
 
   const event = Account.verifyAccount(
-    { account: account.value },
-    account.value.id,
+    { account: account },
+    account.id,
     env.random,
     env.clock,
   );
@@ -110,11 +106,9 @@ export const deleteAccount = async (
   Result<Account.AccountDeleted, Account.DeleteAccountError | "AccountNotFound">
 > => {
   const account = await repository.getById(userId);
-  if (!account.some) {
-    return error("AccountNotFound");
-  }
+  if (!account) return error("AccountNotFound");
 
-  const event = Account.deleteAccount({ account: account.value }, userId);
+  const event = Account.deleteAccount({ account }, userId);
   if (!event.ok) {
     return event;
   }
@@ -131,14 +125,9 @@ export const updateEmail = async (
   Result<Account.EmailUpdated, Account.UpdateEmailError | "AccountNotFound">
 > => {
   const account = await repository.getById(userId);
-  if (!account.some) {
-    return error("AccountNotFound");
-  }
+  if (!account) return error("AccountNotFound");
 
-  const event = Account.updateEmail(
-    { account: account.value, newEmail },
-    userId,
-  );
+  const event = Account.updateEmail({ account, newEmail }, userId);
   if (!event.ok) {
     return event;
   }
@@ -159,13 +148,11 @@ export const updatePassword = async (
   >
 > => {
   const account = await repository.getById(userId);
-  if (!account.some) {
-    return error("AccountNotFound");
-  }
+  if (!account) return error("AccountNotFound");
 
   const event = await Account.updatePassword(
     {
-      account: account.value,
+      account,
       newPassword,
       staticPepper: env.staticPepper,
     },

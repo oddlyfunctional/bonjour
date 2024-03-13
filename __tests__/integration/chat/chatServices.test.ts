@@ -1,9 +1,8 @@
-import { beforeAll, describe, expect, test } from "@jest/globals";
-import * as ChatRepo from "@/app/core/contexts/chat/chatRepository";
+import { makeUser } from "@/__tests__/factories";
+import { Config } from "@/app/core/config";
 import { Account } from "@/app/core/contexts/account/account";
 import { Repository as ChatRepository } from "@/app/core/contexts/chat/chat";
-import { load } from "@/app/core/startup";
-import { makeUser } from "@/__tests__/factories";
+import * as ChatRepo from "@/app/core/contexts/chat/chatRepository";
 import {
   addMember,
   changeAdmin,
@@ -11,10 +10,11 @@ import {
   removeChat,
   removeMember,
 } from "@/app/core/contexts/chat/chatServices";
-import { fail } from "assert";
 import { Env } from "@/app/core/env";
-import { none, some } from "@/app/lib/option";
-import { Config } from "@/app/core/config";
+import { load } from "@/app/core/startup";
+import { none } from "@/app/lib/option";
+import { beforeAll, describe, expect, test } from "@jest/globals";
+import { fail } from "assert";
 
 describe("chatServices integration tests", () => {
   let world: {
@@ -41,7 +41,7 @@ describe("chatServices integration tests", () => {
     const { user, chatRepo, config, env } = world;
 
     const chat = await createChat("some chat", user.id, chatRepo);
-    expect(await chatRepo.getById(chat.id)).toEqual(some(chat));
+    expect(await chatRepo.getById(chat.id)).toEqual(chat);
 
     const newAdmin = await makeUser(config, env);
     const memberAdded = await addMember(
@@ -55,7 +55,7 @@ describe("chatServices integration tests", () => {
       memberId: newAdmin.id,
     });
     (chat.members = [user.id, newAdmin.id]),
-      expect(await chatRepo.getById(chat.id)).toEqual(some(chat));
+      expect(await chatRepo.getById(chat.id)).toEqual(chat);
 
     const adminChanged = await changeAdmin(
       {
@@ -71,7 +71,7 @@ describe("chatServices integration tests", () => {
       adminId: newAdmin.id,
     });
     chat.adminId = newAdmin.id;
-    expect(await chatRepo.getById(chat.id)).toEqual(some(chat));
+    expect(await chatRepo.getById(chat.id)).toEqual(chat);
 
     const memberRemoved = await removeMember(
       { chatId: chat.id, memberId: user.id },
@@ -81,7 +81,7 @@ describe("chatServices integration tests", () => {
     if (!memberRemoved.ok) fail(memberRemoved.error);
     expect(memberRemoved.value).toEqual({ chatId: chat.id, memberId: user.id });
     chat.members = [newAdmin.id];
-    expect(await chatRepo.getById(chat.id)).toEqual(some(chat));
+    expect(await chatRepo.getById(chat.id)).toEqual(chat);
 
     const chatRemoved = await removeChat(chat.id, newAdmin.id, chatRepo);
     if (!chatRemoved.ok) fail(chatRemoved.error);

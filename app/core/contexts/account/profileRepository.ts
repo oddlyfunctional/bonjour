@@ -1,9 +1,9 @@
-import { Sql, joinStatements } from "@/app/lib/sql";
-import { ProfileCreated, ProfileUpdated, Repository } from "./profile";
 import { UserId } from "@/app/core/core";
+import * as Option from "@/app/lib/option";
+import { Sql, joinStatements } from "@/app/lib/sql";
 import SQL from "sql-template-strings";
 import { z } from "zod";
-import * as Option from "@/app/lib/option";
+import { ProfileCreated, ProfileUpdated, Repository } from "./profile";
 
 const schema = z.object({
   ownerId: z.number(),
@@ -27,16 +27,16 @@ export const make = (sql: Sql): Repository => ({
       `,
       schema,
     );
-    return Option.map(profile, (profile) => ({
-      ...profile,
-      avatarUrl: Option.from(profile.avatarUrl),
+    return Option.map(profile, (p) => ({
+      ...p,
+      avatarUrl: Option.from(p.avatarUrl),
     }));
   },
   profileCreated: async (event: ProfileCreated) => {
     const { profileId } = await sql.insertOne(
       SQL`
       INSERT INTO profiles (name, avatar_url)
-      VALUES (${event.name}, ${Option.toNullable(event.avatarUrl)})
+      VALUES (${event.name}, ${event.avatarUrl})
       RETURNING id AS "profileId"
       `,
       z.object({ profileId: z.number() }),
@@ -52,9 +52,8 @@ export const make = (sql: Sql): Repository => ({
   profileUpdated: async (event: ProfileUpdated) => {
     const statement = SQL`UPDATE profiles SET `;
     const changes = [];
-    if (event.name.some) changes.push(SQL`name = ${event.name.value}`);
-    if (event.avatarUrl.some)
-      changes.push(SQL`avatar_url = ${event.avatarUrl.value}`);
+    if (event.name) changes.push(SQL`name = ${event.name}`);
+    if (event.avatarUrl) changes.push(SQL`avatar_url = ${event.avatarUrl}`);
     statement.append(joinStatements(changes, ", "));
     statement.append(SQL`
       FROM users

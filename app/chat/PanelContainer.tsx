@@ -7,10 +7,8 @@ import { redirect } from "next/navigation";
 export default async function Chats() {
   const user = await currentUser();
   const profile = await getProfile();
-  if (!profile.some) return redirect("/account/profile");
+  if (!profile) return redirect("/account/profile");
 
   const chats = await getChats();
-  return (
-    <Panel chats={chats} profile={profile.value} currentUserId={user.id} />
-  );
+  return <Panel chats={chats} profile={profile} currentUserId={user.id} />;
 }

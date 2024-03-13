@@ -1,11 +1,11 @@
-import { describe, expect, it } from "@jest/globals";
 import { Profile, Repository } from "@/app/core/contexts/account/profile";
 import {
   createProfile,
   updateProfile,
 } from "@/app/core/contexts/account/profileServices";
-import { Option, none, some } from "@/app/lib/option";
-import { ok, error } from "@/app/lib/result";
+import { Option, none } from "@/app/lib/option";
+import { error, ok } from "@/app/lib/result";
+import { describe, expect, it } from "@jest/globals";
 
 describe("profileServices", () => {
   const userId = 1;
@@ -42,18 +42,18 @@ describe("profileServices", () => {
 
   describe("updateProfile", () => {
     it("succeeds", async () => {
-      mockProfile = some(profile);
+      mockProfile = profile;
       expect(
         await updateProfile(
-          { name: some("Jane Doe"), avatarUrl: some("some url") },
+          { name: "Jane Doe", avatarUrl: "some url" },
           userId,
           repository,
         ),
       ).toEqual(
         ok({
           ownerId: userId,
-          name: some("Jane Doe"),
-          avatarUrl: some("some url"),
+          name: "Jane Doe",
+          avatarUrl: "some url",
         }),
       );
     });
@@ -62,7 +62,7 @@ describe("profileServices", () => {
       mockProfile = none;
       expect(
         await updateProfile(
-          { name: some("Jane Doe"), avatarUrl: some("some url") },
+          { name: "Jane Doe", avatarUrl: "some url" },
           userId,
           repository,
         ),

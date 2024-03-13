@@ -1,6 +1,6 @@
 import { UserId } from "@/app/core/core";
 import { Option } from "@/app/lib/option";
-import { Result, ok, error } from "@/app/lib/result";
+import { Result, error, ok } from "@/app/lib/result";
 import * as Profile from "./profile";
 
 export const createProfile = async (
@@ -25,12 +25,9 @@ export const updateProfile = async (
   Result<Profile.ProfileUpdated, Profile.UpdateProfileError | "ProfileNotFound">
 > => {
   const profile = await repository.getByOwnerId(userId);
-  if (!profile.some) return error("ProfileNotFound");
+  if (!profile) return error("ProfileNotFound");
 
-  const event = Profile.updateProfile(
-    { profile: profile.value, ...changes },
-    userId,
-  );
+  const event = Profile.updateProfile({ profile, ...changes }, userId);
   if (!event.ok) return event;
 
   await repository.profileUpdated(event.value);

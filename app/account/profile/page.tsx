@@ -5,12 +5,11 @@ import {
   getProfile,
   updateProfile,
 } from "@/app/actions/profile";
-import * as Option from "@/app/lib/option";
 import { redirect } from "next/navigation";
 
 export default async function Profile() {
   const user = await currentUser();
-  const profile = Option.toUndefined(await getProfile());
+  const profile = await getProfile();
   const action = profile ? updateProfile : createProfile;
 
   return (

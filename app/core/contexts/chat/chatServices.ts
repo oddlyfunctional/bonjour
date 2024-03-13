@@ -1,5 +1,5 @@
-import { Result, error } from "@/app/lib/result";
 import { ChatId, UserId } from "@/app/core/core";
+import { Result, error } from "@/app/lib/result";
 import * as Chat from "./chat";
 
 export const createChat = async (
@@ -22,15 +22,13 @@ export const removeChat = async (
   repository: Chat.Repository,
 ): Promise<Result<Chat.ChatDeleted, RemoveChatError>> => {
   const chat = await repository.getById(chatId);
-  if (chat.some) {
-    const event = Chat.deleteChat({ chat: chat.value }, userId);
-    if (event.ok) {
-      await repository.chatDeleted(event.value);
-    }
-    return event;
-  } else {
-    return error("ChatNotFound");
+  if (!chat) return error("ChatNotFound");
+
+  const event = Chat.deleteChat({ chat }, userId);
+  if (event.ok) {
+    await repository.chatDeleted(event.value);
   }
+  return event;
 };
 
 export type ChangeAdminError = Chat.ChangeAdminError | "ChatNotFound";
@@ -46,15 +44,13 @@ export const changeAdmin = async (
   repository: Chat.Repository,
 ): Promise<Result<Chat.AdminChanged, ChangeAdminError>> => {
   const chat = await repository.getById(chatId);
-  if (chat.some) {
-    const event = Chat.changeAdmin({ chat: chat.value, newAdminId }, userId);
-    if (event.ok) {
-      await repository.adminChanged(event.value);
-    }
-    return event;
-  } else {
-    return error("ChatNotFound");
+  if (!chat) return error("ChatNotFound");
+
+  const event = Chat.changeAdmin({ chat, newAdminId }, userId);
+  if (event.ok) {
+    await repository.adminChanged(event.value);
   }
+  return event;
 };
 
 export type AddMemberError = Chat.AddMemberError | "ChatNotFound";
@@ -64,15 +60,13 @@ export const addMember = async (
   repository: Chat.Repository,
 ): Promise<Result<Chat.MemberAdded, AddMemberError>> => {
   const chat = await repository.getById(chatId);
-  if (chat.some) {
-    const event = Chat.addMember({ chat: chat.value, newMemberId }, userId);
-    if (event.ok) {
-      await repository.memberAdded(event.value);
-    }
-    return event;
-  } else {
-    return error("ChatNotFound");
+  if (!chat) return error("ChatNotFound");
+
+  const event = Chat.addMember({ chat, newMemberId }, userId);
+  if (event.ok) {
+    await repository.memberAdded(event.value);
   }
+  return event;
 };
 
 export type RemoveMemberError = Chat.RemoveMemberError | "ChatNotFound";
@@ -82,13 +76,11 @@ export const removeMember = async (
   repository: Chat.Repository,
 ): Promise<Result<Chat.MemberRemoved, RemoveMemberError>> => {
   const chat = await repository.getById(chatId);
-  if (chat.some) {
-    const event = Chat.removeMember({ chat: chat.value, memberId }, userId);
-    if (event.ok) {
-      await repository.memberRemoved(event.value);
-    }
-    return event;
-  } else {
-    return error("ChatNotFound");
+  if (!chat) return error("ChatNotFound");
+
+  const event = Chat.removeMember({ chat, memberId }, userId);
+  if (event.ok) {
+    await repository.memberRemoved(event.value);
   }
+  return event;
 };

@@ -3,7 +3,6 @@ import { Avatar } from "@/app/components/Avatar";
 import * as Icons from "@/app/components/Icons";
 import type { Profile } from "@/app/core/contexts/account/profile";
 import type { UserId } from "@/app/core/core";
-import * as Option from "@/app/lib/option";
 import { useRef, useState } from "react";
 
 export const EditProfile = ({
@@ -18,9 +17,7 @@ export const EditProfile = ({
   currentUserId: UserId;
 }) => {
   const avatarRef = useRef<HTMLInputElement>(null);
-  const [avatarUrl, setAvatarUrl] = useState(
-    profile ? Option.toUndefined(profile.avatarUrl) : undefined,
-  );
+  const [avatarUrl, setAvatarUrl] = useState(profile?.avatarUrl);
 
   return (
     <form

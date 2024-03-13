@@ -19,9 +19,9 @@ export const getChat = async (chatId: ChatId) => {
   const user = await currentUser();
   const chatRepo = ChatRepo.make(env.sql);
   const chat = await chatRepo.getById(chatId);
-  if (!chat.some || !chat.value.members.includes(user.id)) redirect("/");
+  if (!chat || !chat.members.includes(user.id)) redirect("/");
 
-  return chat.value;
+  return chat;
 };
 
 export const createChat = async (form: FormData) => {
