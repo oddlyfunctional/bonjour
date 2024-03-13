@@ -34,6 +34,7 @@ describe("messageServices", () => {
   let mockMessageId = messageId;
   const repository: Repository = {
     getById: async () => mockMessage,
+    getAllByChatId: async () => [],
     messageSent: async () => mockMessageId,
     messageUnsent: async () => {},
   };

@@ -1,24 +1,28 @@
-import { redirect } from "next/navigation";
+import { EditProfile } from "@/app/account/profile/EditProfile";
 import { currentUser } from "@/app/actions/auth";
-import { getProfile } from "@/app/actions/profile";
+import {
+  createProfile,
+  getProfile,
+  updateProfile,
+} from "@/app/actions/profile";
 import * as Option from "@/app/lib/option";
-import Image from "next/image";
+import { redirect } from "next/navigation";
 
 export default async function Profile() {
   const user = await currentUser();
   if (!user.some) return redirect("/");
 
-  const profile = Option.toNullable(await getProfile());
-  const avatarUrl = profile && Option.toNullable(profile.avatarUrl);
+  const profile = Option.toUndefined(await getProfile());
+  const action = profile ? updateProfile : createProfile;
 
   return (
-    <div>
-      <h1>Profile</h1>
-      <form>
-        <input defaultValue={profile?.name} name="name" type="text" required />
-        <input name="avatarUrl" type="file" />
-        {avatarUrl && <Image src={avatarUrl} alt="avatar" />}
-      </form>
+    <div className="p-4">
+      <h1 className="text-5xl font-bold">Profile</h1>
+      <EditProfile
+        action={action}
+        profile={profile}
+        onSaved={redirect("/chat")}
+      />
     </div>
   );
 }

@@ -194,32 +194,12 @@ CREATE TABLE public.profiles (
 --
 
 CREATE TABLE public.profiles_audit (
-    id integer NOT NULL,
+    id integer,
     name character varying,
     avatar_url character varying,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
-
-
---
--- Name: profiles_audit_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.profiles_audit_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: profiles_audit_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.profiles_audit_id_seq OWNED BY public.profiles_audit.id;
 
 
 --
@@ -339,13 +319,6 @@ ALTER TABLE ONLY public.profiles ALTER COLUMN id SET DEFAULT nextval('public.pro
 
 
 --
--- Name: profiles_audit id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.profiles_audit ALTER COLUMN id SET DEFAULT nextval('public.profiles_audit_id_seq'::regclass);
-
-
---
 -- Name: users id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -366,14 +339,6 @@ ALTER TABLE ONLY public.chats
 
 ALTER TABLE ONLY public.messages
     ADD CONSTRAINT messages_pkey PRIMARY KEY (id);
-
-
---
--- Name: profiles_audit profiles_audit_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.profiles_audit
-    ADD CONSTRAINT profiles_audit_pkey PRIMARY KEY (id);
 
 
 --
@@ -413,6 +378,13 @@ ALTER TABLE ONLY public.users
 --
 
 CREATE INDEX chats_admin_id_idx ON public.chats USING btree (admin_id);
+
+
+--
+-- Name: chats_users_chat_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX chats_users_chat_id_idx ON public.chats_users USING btree (chat_id);
 
 
 --

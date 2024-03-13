@@ -14,7 +14,7 @@ CREATE TRIGGER update_profiles_timestamp
     EXECUTE FUNCTION update_timestamp();
 
 CREATE TABLE profiles_audit (
-    id SERIAL PRIMARY KEY,
+    id INTEGER,
     name VARCHAR,
     avatar_url VARCHAR,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

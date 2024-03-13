@@ -1,26 +1,19 @@
-import Link from "next/link";
 import { currentUser } from "@/app/actions/auth";
 import { SignIn } from "@/app/components/SignIn";
-import { SignOut } from "./components/SignOut";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default async function Home() {
   const user = await currentUser();
+  if (user.some) return redirect("/chat");
 
   return (
-    <div>
-      <h1>Hello World</h1>
-      {user.some ? (
-        <>
-          <SignOut />
-        </>
-      ) : (
-        <>
-          <SignIn />
-          <p>
-            <Link href="/account/registration">Create your account</Link>
-          </p>
-        </>
-      )}
+    <div className="flex h-full w-full flex-col items-center justify-center">
+      <h1 className="mb-8 text-8xl font-bold">Bonjour 🥐</h1>
+      <SignIn />
+      <Link href="/account/registration" className="mt-4">
+        Create account
+      </Link>
     </div>
   );
 }

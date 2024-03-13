@@ -2,7 +2,7 @@
 import { signOut } from "@/app/actions/auth";
 import { useState } from "react";
 
-export const SignOut = () => {
+export const SignOut = (props: React.ComponentPropsWithoutRef<"button">) => {
   const [clicked, setClicked] = useState(false);
   return (
     <button
@@ -11,6 +11,7 @@ export const SignOut = () => {
         setClicked(true);
         signOut();
       }}
+      {...props}
     >
       Sign out
     </button>

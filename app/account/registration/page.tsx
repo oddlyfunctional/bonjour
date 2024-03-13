@@ -1,6 +1,6 @@
 import { currentUser } from "@/app/actions/auth";
-import { redirect } from "next/navigation";
 import { SignUp } from "@/app/components/SignUp";
+import { redirect } from "next/navigation";
 
 export default async function Registration() {
   const user = await currentUser();
@@ -8,5 +8,12 @@ export default async function Registration() {
     return redirect("/");
   }
 
-  return <SignUp />;
+  return (
+    <div className="flex flex-col items-center">
+      <h1 className="text-4xl font-semibold">Create your account</h1>
+      <div className="mt-4 w-72">
+        <SignUp />
+      </div>
+    </div>
+  );
 }

@@ -71,6 +71,7 @@ export const unsendMessage = (
 
 export interface Repository {
   getById: (messageId: MessageId) => Promise<Option<Message>>;
+  getAllByChatId: (chatId: ChatId, userId: UserId) => Promise<Array<Message>>;
   messageSent: (event: MessageSent) => Promise<MessageId>;
   messageUnsent: (event: MessageUnsent) => Promise<void>;
 }
