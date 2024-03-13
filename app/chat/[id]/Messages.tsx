@@ -48,6 +48,7 @@ const MessageBubble = ({
       {showHeader && (
         <>
           <Avatar
+            userId={message.authorId}
             size="sm"
             alt={"User name"}
             position="absolute"

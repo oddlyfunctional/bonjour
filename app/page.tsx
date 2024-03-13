@@ -1,11 +1,10 @@
-import { currentUser } from "@/app/actions/auth";
+import { isSignedIn } from "@/app/actions/auth";
 import { SignIn } from "@/app/components/SignIn";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function Home() {
-  const user = await currentUser();
-  if (user.some) return redirect("/chat");
+  if (await isSignedIn()) return redirect("/chat");
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-center">

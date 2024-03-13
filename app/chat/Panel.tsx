@@ -33,9 +33,11 @@ const drawerTitle = (content: DrawerContent) => {
 const DrawerChildren = ({
   content,
   onFinished,
+  currentUserId,
 }: {
   content: DrawerContent;
   onFinished: () => void;
+  currentUserId: UserId;
 }) => {
   if (content === null) return null;
 
@@ -45,6 +47,7 @@ const DrawerChildren = ({
         <>
           <div className="h-full">
             <EditProfile
+              currentUserId={currentUserId}
               action={updateProfile}
               profile={content.profile}
               onSaved={onFinished}
@@ -79,12 +82,14 @@ export const Panel = ({
         onClose={() => setDrawerContent(null)}
       >
         <DrawerChildren
+          currentUserId={currentUserId}
           content={drawerContent}
           onFinished={() => setDrawerContent(null)}
         />
       </Drawer>
       <div className="flex flex-row items-center justify-between p-4">
         <Avatar
+          userId={currentUserId}
           src={Option.toUndefined(profile.avatarUrl)}
           size="md"
           className="cursor-pointer"

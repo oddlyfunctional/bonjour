@@ -1,13 +1,12 @@
 "use server";
 
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import * as AccountMailer from "@/app/core/contexts/account/accountMailer";
+import * as AccountRepo from "@/app/core/contexts/account/accountRepository";
+import * as Account from "@/app/core/contexts/account/accountServices";
 import { load } from "@/app/core/startup";
 import { error } from "@/app/lib/result";
-import { none } from "@/app/lib/option";
-import * as Account from "@/app/core/contexts/account/accountServices";
-import * as AccountRepo from "@/app/core/contexts/account/accountRepository";
-import * as AccountMailer from "@/app/core/contexts/account/accountMailer";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export const signUp = async (_state: unknown, form: FormData) => {
   const { env, config } = await load();
@@ -67,11 +66,24 @@ export const signOut = async () => {
   redirect("/");
 };
 
-export const currentUser = async () => {
+export const isSignedIn = async () => {
   const sessionId = cookies().get("sessionId")?.value;
-  if (sessionId === undefined || sessionId == "") return none;
+  if (sessionId === undefined || sessionId == "") return false;
 
   const { env } = await load();
   const accountRepo = AccountRepo.make(env.sql);
-  return await accountRepo.getBySessionId(sessionId);
+  const user = await accountRepo.getBySessionId(sessionId);
+  return user.some;
+};
+
+export const currentUser = async () => {
+  const sessionId = cookies().get("sessionId")?.value;
+  if (sessionId === undefined || sessionId == "")
+    throw new Error("Unauthorized");
+
+  const { env } = await load();
+  const accountRepo = AccountRepo.make(env.sql);
+  const user = await accountRepo.getBySessionId(sessionId);
+  if (!user.some) throw new Error("Unauthorized");
+  return user.value;
 };

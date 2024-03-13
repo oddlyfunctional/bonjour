@@ -10,8 +10,6 @@ import { redirect } from "next/navigation";
 
 export default async function Profile() {
   const user = await currentUser();
-  if (!user.some) return redirect("/");
-
   const profile = Option.toUndefined(await getProfile());
   const action = profile ? updateProfile : createProfile;
 
@@ -19,6 +17,7 @@ export default async function Profile() {
     <div className="p-4">
       <h1 className="text-5xl font-bold">Profile</h1>
       <EditProfile
+        currentUserId={user.id}
         action={action}
         profile={profile}
         onSaved={redirect("/chat")}

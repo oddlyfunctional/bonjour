@@ -1,3 +1,4 @@
+import type { UserId } from "@/app/core/core";
 import Image from "next/image";
 
 type Size = "sm" | "md" | "lg";
@@ -15,6 +16,7 @@ const getSizePx = (size: Size) => {
 
 interface Props
   extends Omit<React.ComponentProps<typeof Image>, "src" | "alt"> {
+  userId: UserId;
   src?: string;
   alt?: string;
   size?: Size;
@@ -22,7 +24,8 @@ interface Props
 }
 
 export const Avatar = ({
-  src = "https://avatar.iran.liara.run/public",
+  userId,
+  src = `https://avatar.iran.liara.run/public?username=${userId}`,
   alt = "avatar",
   size = "md",
   position = "relative",

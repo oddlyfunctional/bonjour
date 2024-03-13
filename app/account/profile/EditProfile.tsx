@@ -2,6 +2,7 @@
 import { Avatar } from "@/app/components/Avatar";
 import * as Icons from "@/app/components/Icons";
 import type { Profile } from "@/app/core/contexts/account/profile";
+import type { UserId } from "@/app/core/core";
 import * as Option from "@/app/lib/option";
 import { useRef, useState } from "react";
 
@@ -9,10 +10,12 @@ export const EditProfile = ({
   action,
   profile,
   onSaved,
+  currentUserId,
 }: {
   action: (f: FormData) => Promise<undefined>;
   profile: Profile | undefined;
   onSaved: () => void;
+  currentUserId: UserId;
 }) => {
   const avatarRef = useRef<HTMLInputElement>(null);
   const [avatarUrl, setAvatarUrl] = useState(
@@ -49,7 +52,7 @@ export const EditProfile = ({
           <Icons.Camera />
           <div className="mt-2 text-xs">Change avatar</div>
         </div>
-        <Avatar src={avatarUrl} size="lg" />
+        <Avatar userId={currentUserId} src={avatarUrl} size="lg" />
       </div>
       <div className="ml-4 flex w-full flex-col">
         <label className="flex w-full flex-col">

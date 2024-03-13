@@ -9,19 +9,15 @@ import { redirect } from "next/navigation";
 import { currentUser } from "./auth";
 
 export const getProfile = async () => {
-  const user = await currentUser();
-  if (!user.some) return Option.none;
-
   const { env } = await load();
+  const user = await currentUser();
   const profileRepo = ProfileRepo.make(env.sql);
-  return profileRepo.getByOwnerId(user.value.id);
+  return profileRepo.getByOwnerId(user.id);
 };
 
 export const createProfile = async (form: FormData) => {
-  const user = await currentUser();
-  if (!user.some) return redirect("/");
-
   const { env } = await load();
+  const user = await currentUser();
   const profileRepo = ProfileRepo.make(env.sql);
   const result = await Profile.createProfile(
     {
@@ -29,7 +25,7 @@ export const createProfile = async (form: FormData) => {
       // TODO: handle image upload
       avatarUrl: Option.none,
     },
-    user.value.id,
+    user.id,
     profileRepo,
   );
   if (!result.ok) return redirect("/");
@@ -38,17 +34,15 @@ export const createProfile = async (form: FormData) => {
 };
 
 export const updateProfile = async (form: FormData) => {
-  const user = await currentUser();
-  if (!user.some) return redirect("/");
-
   const { env } = await load();
+  const user = await currentUser();
   const profileRepo = ProfileRepo.make(env.sql);
   const result = await Profile.updateProfile(
     {
       name: Option.from(form.get("name") as string | null),
       avatarUrl: Option.none,
     },
-    user.value.id,
+    user.id,
     profileRepo,
   );
   if (!result.ok) return redirect("/");

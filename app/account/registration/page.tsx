@@ -1,12 +1,9 @@
-import { currentUser } from "@/app/actions/auth";
+import { isSignedIn } from "@/app/actions/auth";
 import { SignUp } from "@/app/components/SignUp";
 import { redirect } from "next/navigation";
 
 export default async function Registration() {
-  const user = await currentUser();
-  if (user.some) {
-    return redirect("/");
-  }
+  if (await isSignedIn()) return redirect("/chat");
 
   return (
     <div className="flex flex-col items-center">
