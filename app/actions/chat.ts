@@ -32,3 +32,10 @@ export const createChat = async (form: FormData) => {
 
   revalidatePath("/chat");
 };
+
+export const getMembers = async (chatId: ChatId) => {
+  const { env } = await load();
+  const user = await currentUser();
+  const chatRepo = ChatRepo.make(env.sql);
+  return await chatRepo.getMembers(chatId, user.id);
+};

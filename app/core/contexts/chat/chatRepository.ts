@@ -1,7 +1,8 @@
-import { ZodType, z } from "zod";
-import SQL from "sql-template-strings";
-import { Sql } from "@/app/lib/sql";
 import { ChatId, UserId } from "@/app/core/core";
+import * as Option from "@/app/lib/option";
+import { Sql } from "@/app/lib/sql";
+import SQL from "sql-template-strings";
+import { ZodType, z } from "zod";
 import {
   AdminChanged,
   Chat,
@@ -57,6 +58,34 @@ export const make = (sql: Sql): Repository => ({
       `,
       schema,
     ),
+  getMembers: async (chatId: ChatId, userId: UserId) => {
+    const members = await sql.query(
+      SQL`
+      SELECT
+        users.id AS "userId",
+        profiles.name,
+        profiles.avatar_url AS "avatarUrl"
+      FROM users
+      INNER JOIN chats_users AS filter
+        ON filter.chat_id = ${chatId}
+        AND filter.user_id = ${userId}
+      INNER JOIN chats_users
+        ON chats_users.user_id = users.id
+      INNER JOIN profiles
+        ON users.profile_id = profiles.id
+      WHERE chats_users.chat_id = ${chatId}
+    `,
+      z.object({
+        userId: z.number(),
+        name: z.string(),
+        avatarUrl: z.nullable(z.string()),
+      }),
+    );
+    return members.map((member) => ({
+      ...member,
+      avatarUrl: Option.from(member.avatarUrl),
+    }));
+  },
   chatCreated: async ({ chat }: ChatCreated) => {
     const { id: chatId } = await sql.insertOne(
       SQL`

@@ -3,6 +3,7 @@
 import { Avatar } from "@/app/components/Avatar";
 import * as Icons from "@/app/components/Icons";
 import { TimeAgo } from "@/app/components/TimeAgo";
+import type { MemberReadModel } from "@/app/core/contexts/chat/chat";
 import {
   DeliveryStatus,
   Message,
@@ -38,10 +39,12 @@ const BubbleTriangle = ({ direction }: { direction: "left" | "right" }) => {
 
 const MessageBubble = ({
   message,
+  member,
   currentUserId,
   showHeader,
 }: {
   message: Message;
+  member: MemberReadModel;
   currentUserId: UserId;
   showHeader: boolean;
 }) => {
@@ -54,8 +57,9 @@ const MessageBubble = ({
         <>
           <Avatar
             userId={message.authorId}
+            src={member.avatarUrl}
             size="sm"
-            alt={"User name"}
+            alt={member.name}
             position="absolute"
             className={`top-0 ${isSender ? "-right-10" : "-left-10"}`}
           />
@@ -63,7 +67,7 @@ const MessageBubble = ({
           <div
             className={`px-4 py-1 font-semibold text-white ${isSender ? "bg-emerald-700" : "bg-gray-700"}`}
           >
-            User name
+            {member.name}
           </div>
         </>
       )}
@@ -84,13 +88,25 @@ const MessageBubble = ({
   );
 };
 
-const renderMessages = (messages: Array<Message>, currentUserId: UserId) => {
+const renderMessages = (
+  messages: Array<Message>,
+  members: Map<UserId, MemberReadModel>,
+  currentUserId: UserId,
+) => {
   const children: Array<React.ReactNode> = [];
   messages.forEach((message, i) => {
+    const member = members.get(message.authorId);
+    if (!member) {
+      console.error(
+        `Couldn't find member data for user id ${message.authorId}`,
+      );
+      return;
+    }
     children.push(
       <MessageBubble
         key={message.id}
         message={message}
+        member={member}
         currentUserId={currentUserId}
         showHeader={messages[i - 1]?.authorId !== message.authorId}
       />,
@@ -103,10 +119,12 @@ export const Messages = ({
   chatId,
   messages: initialMessages,
   currentUserId,
+  members,
 }: {
   chatId: ChatId;
   messages: Array<Message>;
   currentUserId: UserId;
+  members: Map<UserId, MemberReadModel>;
 }) => {
   const [messages, setMessages] = useState(initialMessages);
   useChannel(`chat:${chatId}`, (channel) => {
@@ -135,7 +153,7 @@ export const Messages = ({
           It's empty here, why not send the first message?
         </div>
       )}
-      {renderMessages(messages, currentUserId)}
+      {renderMessages(messages, members, currentUserId)}
       <div ref={chatBottomRef} />
     </div>
   );

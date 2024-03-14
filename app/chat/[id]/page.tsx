@@ -1,6 +1,6 @@
 import { currentUser } from "@/app/actions/auth";
 import { getChat } from "@/app/actions/chat";
-import { ChatWrapper } from "@/app/chat/[id]/Chat";
+import { ChatWrapper } from "@/app/chat/[id]/ChatWrapper";
 import { ChatId } from "@/app/core/core";
 
 export default async function Chat({

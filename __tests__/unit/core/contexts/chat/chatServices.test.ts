@@ -27,6 +27,7 @@ describe("chatServices", () => {
   const repository: Repository = {
     getById: async () => mockChat,
     getAllByUserId: async () => [],
+    getMembers: async () => [],
     chatCreated: async () => mockChatId,
     chatDeleted: async () => {},
     adminChanged: async () => {},

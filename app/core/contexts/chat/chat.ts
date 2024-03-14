@@ -1,6 +1,6 @@
-import { Result, ok, error } from "@/app/lib/result";
-import { Option } from "@/app/lib/option";
 import { ChatId, UserId } from "@/app/core/core";
+import { Option } from "@/app/lib/option";
+import { Result, error, ok } from "@/app/lib/result";
 
 export type Chat = {
   id: ChatId;
@@ -134,9 +134,19 @@ export const removeMember = (
   });
 };
 
+export type MemberReadModel = {
+  userId: UserId;
+  name: string;
+  avatarUrl: Option<string>;
+};
+
 export interface Repository {
   getById: (chatId: ChatId) => Promise<Option<Chat>>;
   getAllByUserId: (userId: UserId) => Promise<Array<Chat>>;
+  getMembers: (
+    chatId: ChatId,
+    userId: UserId,
+  ) => Promise<Array<MemberReadModel>>;
   chatCreated: (event: ChatCreated) => Promise<ChatId>;
   chatDeleted: (event: ChatDeleted) => Promise<void>;
   adminChanged: (event: AdminChanged) => Promise<void>;
