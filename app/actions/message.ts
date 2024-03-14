@@ -1,7 +1,7 @@
 "use server";
 
 import * as MessageRepo from "@/app/core/contexts/chat/messageRepository";
-import { ChatId } from "@/app/core/core";
+import { ChatId, type uuid } from "@/app/core/core";
 import { load } from "@/app/core/startup";
 import { revalidatePath } from "next/cache";
 import * as Message from "../core/contexts/chat/messageServices";
@@ -14,12 +14,13 @@ export const getMessages = async (chatId: ChatId) => {
   return await messageRepo.getAllByChatId(chatId, user.id);
 };
 
-export const sendMessage = async (chatId: ChatId, form: FormData) => {
+export const sendMessage = async (id: uuid, chatId: ChatId, form: FormData) => {
   const { env } = await load();
   const user = await currentUser();
   const messageRepo = MessageRepo.make(env.sql);
   await Message.sendMessage(
     {
+      id,
       chatId,
       body: form.get("body") as string,
     },

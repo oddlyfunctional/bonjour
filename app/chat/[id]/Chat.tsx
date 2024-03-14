@@ -24,8 +24,12 @@ export const ChatWrapper = async ({
   return (
     <>
       <ChatHeader chat={chat} />
-      <Messages messages={messages} currentUserId={currentUserId} />
-      <NewMessage chatId={chat.id} />
+      <Messages
+        chatId={chat.id}
+        messages={messages}
+        currentUserId={currentUserId}
+      />
+      <NewMessage chatId={chat.id} currentUserId={currentUserId} />
     </>
   );
 };

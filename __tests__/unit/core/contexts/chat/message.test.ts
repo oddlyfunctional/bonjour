@@ -1,18 +1,18 @@
-import { describe, expect, it } from "@jest/globals";
-import { mock as mockClock } from "@/app/lib/clock";
-import { ok, error } from "@/app/lib/result";
 import {
   DeliveryStatus,
   sendMessage,
   unsendMessage,
 } from "@/app/core/contexts/chat/message";
+import { mock as mockClock } from "@/app/lib/clock";
+import { error, ok } from "@/app/lib/result";
+import { describe, expect, it } from "@jest/globals";
 
 describe("Message", () => {
   const { setNow, clock } = mockClock();
   const now = new Date();
   setNow(now);
 
-  const messageId = 1;
+  const messageId = "some message id";
   const chatId = 2;
   const userId = 3;
 
@@ -21,6 +21,7 @@ describe("Message", () => {
       expect(
         sendMessage(
           {
+            id: messageId,
             body: "some message",
             chatId,
           },

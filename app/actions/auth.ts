@@ -73,17 +73,23 @@ export const isSignedIn = async () => {
   const { env } = await load();
   const accountRepo = AccountRepo.make(env.sql);
   const user = await accountRepo.getBySessionId(sessionId);
-  return user;
+  return Boolean(user);
 };
 
 export const currentUser = async () => {
   const sessionId = cookies().get("sessionId")?.value;
-  if (sessionId === undefined || sessionId == "")
-    throw new Error("Unauthorized");
+  if (sessionId === undefined || sessionId == "") {
+    console.error(new Error("Unauthorized"));
+    return redirect("/");
+  }
 
   const { env } = await load();
   const accountRepo = AccountRepo.make(env.sql);
   const user = await accountRepo.getBySessionId(sessionId);
-  if (!user) throw new Error("Unauthorized");
+  if (!user) {
+    console.error(new Error("Unauthorized"));
+    return redirect("/");
+  }
+
   return user;
 };

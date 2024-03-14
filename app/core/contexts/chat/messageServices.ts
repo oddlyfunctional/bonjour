@@ -1,13 +1,15 @@
-import { ChatId, MessageId, UserId } from "@/app/core/core";
+import { ChatId, MessageId, UserId, type uuid } from "@/app/core/core";
 import { Clock } from "@/app/lib/clock";
 import { Result, error } from "@/app/lib/result";
 import * as Message from "./message";
 
 export const sendMessage = async (
   {
+    id,
     body,
     chatId,
   }: {
+    id: uuid;
     body: string;
     chatId: ChatId;
   },
@@ -15,13 +17,8 @@ export const sendMessage = async (
   repository: Message.Repository,
   clock: Clock,
 ) => {
-  const event = Message.sendMessage({ body, chatId }, userId, clock);
-  const messageId = await repository.messageSent(event);
-  const message: Message.Message = {
-    ...event.message,
-    id: messageId,
-  };
-
+  const message = Message.sendMessage({ id, body, chatId }, userId, clock);
+  await repository.messageSent(message);
   return message;
 };
 

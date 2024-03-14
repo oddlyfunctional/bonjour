@@ -12,7 +12,7 @@ export const EditProfile = ({
   currentUserId,
 }: {
   action: (f: FormData) => Promise<undefined>;
-  profile: Profile | undefined;
+  profile?: Profile | undefined;
   onSaved: () => void;
   currentUserId: UserId;
 }) => {

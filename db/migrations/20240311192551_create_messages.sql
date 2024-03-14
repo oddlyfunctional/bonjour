@@ -1,7 +1,7 @@
 -- migrate:up
 CREATE TYPE DELIVERY_STATUS AS ENUM ('Pending', 'Sent', 'Seen');
 CREATE TABLE messages (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY,
     chat_id INTEGER NOT NULL,
     author_id INTEGER NOT NULL,
     body TEXT NOT NULL,

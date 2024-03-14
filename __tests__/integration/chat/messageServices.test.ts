@@ -9,6 +9,7 @@ import {
   sendMessage,
   unsendMessage,
 } from "@/app/core/contexts/chat/messageServices";
+import type { Env } from "@/app/core/env";
 import { load } from "@/app/core/startup";
 import * as Clock from "@/app/lib/clock";
 import { none } from "@/app/lib/option";
@@ -21,6 +22,7 @@ describe("messageServices integration tests", () => {
     user: Account;
     chat: Chat;
     msgRepo: MessageRepository;
+    env: Env;
   };
   beforeAll(async () => {
     const { env, config } = await load();
@@ -34,24 +36,27 @@ describe("messageServices integration tests", () => {
       user,
       chat,
       msgRepo,
+      env,
     };
   });
 
   test("message services", async () => {
-    const { user, chat, msgRepo } = world;
+    const { user, chat, msgRepo, env } = world;
     const now = new Date();
     mockClock.setNow(now);
+
+    const messageId = env.random.nextUuid();
     const msg = await sendMessage(
-      { body: "some message", chatId: chat.id },
+      { id: messageId, body: "some message", chatId: chat.id },
       user.id,
       msgRepo,
       mockClock.clock,
     );
-    expect(await msgRepo.getById(msg.id)).toEqual(msg);
+    expect(await msgRepo.getById(messageId)).toEqual(msg);
 
-    const unsent = await unsendMessage(msg.id, user.id, msgRepo);
+    const unsent = await unsendMessage(messageId, user.id, msgRepo);
     if (!unsent.ok) throw new Error(unsent.error);
-    expect(unsent.value).toEqual({ messageId: msg.id });
-    expect(await msgRepo.getById(msg.id)).toEqual(none);
+    expect(unsent.value).toEqual({ messageId });
+    expect(await msgRepo.getById(messageId)).toEqual(none);
   });
 });

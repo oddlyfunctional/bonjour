@@ -1,26 +1,17 @@
-import { EditProfile } from "@/app/account/profile/EditProfile";
+import { CreateProfile } from "@/app/account/profile/CreateProfile";
 import { currentUser } from "@/app/actions/auth";
-import {
-  createProfile,
-  getProfile,
-  updateProfile,
-} from "@/app/actions/profile";
+import { getProfile } from "@/app/actions/profile";
 import { redirect } from "next/navigation";
 
 export default async function Profile() {
   const user = await currentUser();
   const profile = await getProfile();
-  const action = profile ? updateProfile : createProfile;
+  if (profile) return redirect("/chat");
 
   return (
     <div className="p-4">
       <h1 className="text-5xl font-bold">Profile</h1>
-      <EditProfile
-        currentUserId={user.id}
-        action={action}
-        profile={profile}
-        onSaved={redirect("/chat")}
-      />
+      <CreateProfile currentUserId={user.id} />
     </div>
   );
 }

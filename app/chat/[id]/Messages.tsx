@@ -3,9 +3,14 @@
 import { Avatar } from "@/app/components/Avatar";
 import * as Icons from "@/app/components/Icons";
 import { TimeAgo } from "@/app/components/TimeAgo";
-import type { DeliveryStatus, Message } from "@/app/core/contexts/chat/message";
-import type { UserId } from "@/app/core/core";
-import { useEffect, useRef } from "react";
+import {
+  DeliveryStatus,
+  Message,
+  schema,
+} from "@/app/core/contexts/chat/message";
+import type { ChatId, UserId } from "@/app/core/core";
+import { useChannel } from "@/app/lib/hooks";
+import { useEffect, useRef, useState } from "react";
 
 const Status = ({ deliveryStatus }: { deliveryStatus: DeliveryStatus }) => {
   switch (deliveryStatus) {
@@ -95,12 +100,29 @@ const renderMessages = (messages: Array<Message>, currentUserId: UserId) => {
 };
 
 export const Messages = ({
-  messages,
+  chatId,
+  messages: initialMessages,
   currentUserId,
 }: {
+  chatId: ChatId;
   messages: Array<Message>;
   currentUserId: UserId;
 }) => {
+  const [messages, setMessages] = useState(initialMessages);
+  useChannel(`chat:${chatId}`, (channel) => {
+    channel.on("message", (event) => {
+      const validatedMessage = schema.safeParse({
+        ...event.message,
+        sentAt: new Date(Date.parse(event.message.sentAt)),
+      });
+      if (validatedMessage.success) {
+        setMessages((messages) => [...messages, validatedMessage.data]);
+      } else {
+        throw validatedMessage.error;
+      }
+    });
+  });
+
   const chatBottomRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     chatBottomRef.current && chatBottomRef.current.scrollIntoView();

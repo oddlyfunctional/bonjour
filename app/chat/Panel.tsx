@@ -1,11 +1,11 @@
 "use client";
 
-import { EditProfile } from "@/app/account/profile/EditProfile";
 import { updateProfile } from "@/app/actions/profile";
 import { ChatRow } from "@/app/chat/ChatRow";
 import { NewChat } from "@/app/chat/NewChat";
 import { Avatar } from "@/app/components/Avatar";
 import { Drawer } from "@/app/components/Drawer";
+import { EditProfile } from "@/app/components/EditProfile";
 import * as Icons from "@/app/components/Icons";
 import { SignOut } from "@/app/components/SignOut";
 import type { Profile } from "@/app/core/contexts/account/profile";

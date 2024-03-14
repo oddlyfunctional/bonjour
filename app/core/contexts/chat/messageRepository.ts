@@ -1,23 +1,7 @@
-import { ZodType, z } from "zod";
-import SQL from "sql-template-strings";
-import { Sql } from "@/app/lib/sql";
 import { ChatId, MessageId, UserId } from "@/app/core/core";
-import {
-  DeliveryStatus,
-  Message,
-  MessageSent,
-  MessageUnsent,
-  Repository,
-} from "./message";
-
-const schema: ZodType<Message> = z.object({
-  id: z.number(),
-  chatId: z.number(),
-  authorId: z.number(),
-  body: z.string(),
-  sentAt: z.date(),
-  deliveryStatus: z.nativeEnum(DeliveryStatus),
-});
+import { Sql } from "@/app/lib/sql";
+import SQL from "sql-template-strings";
+import { MessageSent, MessageUnsent, Repository, schema } from "./message";
 
 export const make = (sql: Sql): Repository => ({
   getById: (messageId: MessageId) =>
@@ -56,26 +40,26 @@ export const make = (sql: Sql): Repository => ({
       `,
       schema,
     ),
-  messageSent: async ({ message }: MessageSent) => {
-    const { id: messageId } = await sql.insertOne(
+  messageSent: async (event: MessageSent) => {
+    await sql.mutate(
       SQL`
       INSERT INTO messages (
+        id,
         chat_id,
         author_id,
         body,
         sent_at,
         delivery_status
       ) VALUES (
-        ${message.chatId},
-        ${message.authorId},
-        ${message.body},
-        ${message.sentAt},
-        ${message.deliveryStatus}
-      ) RETURNING id
+        ${event.id},
+        ${event.chatId},
+        ${event.authorId},
+        ${event.body},
+        ${event.sentAt},
+        ${event.deliveryStatus}
+      )
     `,
-      z.object({ id: z.number() }),
     );
-    return messageId;
   },
   messageUnsent: async (event: MessageUnsent) => {
     await sql.mutate(SQL`

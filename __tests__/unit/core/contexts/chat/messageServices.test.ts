@@ -17,7 +17,7 @@ describe("messageServices", () => {
   const now = new Date();
   setNow(now);
 
-  const messageId = 1;
+  const messageId = "some message id";
   const chatId = 2;
   const userId = 3;
 
@@ -31,26 +31,24 @@ describe("messageServices", () => {
   };
 
   let mockMessage: Option<Message> = none;
-  let mockMessageId = messageId;
   const repository: Repository = {
     getById: async () => mockMessage,
     getAllByChatId: async () => [],
-    messageSent: async () => mockMessageId,
+    messageSent: async () => {},
     messageUnsent: async () => {},
   };
 
   describe("sendMessage", () => {
     it("succeeds", async () => {
-      mockMessageId = messageId + 1;
       expect(
         await sendMessage(
-          { body: "some message", chatId },
+          { id: messageId, body: "some message", chatId },
           userId,
           repository,
           clock,
         ),
       ).toEqual({
-        id: mockMessageId,
+        id: messageId,
         chatId: chatId,
         authorId: userId,
         body: "some message",
@@ -63,14 +61,14 @@ describe("messageServices", () => {
   describe("unsendMessage", () => {
     it("succeeds", async () => {
       mockMessage = message;
-      expect(await unsendMessage(chatId, userId, repository)).toEqual(
+      expect(await unsendMessage(messageId, userId, repository)).toEqual(
         ok({ messageId }),
       );
     });
 
     it("fails if can't find message", async () => {
       mockMessage = none;
-      expect(await unsendMessage(chatId, userId, repository)).toEqual(
+      expect(await unsendMessage(messageId, userId, repository)).toEqual(
         error("MessageNotFound"),
       );
     });

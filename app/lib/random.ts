@@ -1,7 +1,8 @@
+import type { uuid } from "@/app/core/core";
 import { randomBytes, randomUUID } from "crypto";
 
 export type Random = {
-  nextUuid: () => string;
+  nextUuid: () => uuid;
   nextString: (length: number) => string;
 };
 
