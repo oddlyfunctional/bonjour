@@ -7,10 +7,18 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest",
-    "test:watch": "jest --watch",
+    "test": "NODE_ENV=test jest",
+    "test:watch": "NODE_ENV=test jest --watch",
     "typecheck": "tsc --noEmit",
-    "typecheck:watch": "tsc --noEmit --watch"
+    "typecheck:watch": "tsc --noEmit --watch",
+    "db:drop": "dbmate drop",
+    "db:create": "dbmate create",
+    "db:up": "dbmate up",
+    "db:down": "dbmate down",
+    "db:test:drop": "dbmate -e TEST_DATABASE_URL drop",
+    "db:test:create": "dbmate -e TEST_DATABASE_URL create",
+    "db:test:load": "dbmate -e TEST_DATABASE_URL load",
+    "db:test:setup": "npm run db:test:drop && npm run db:test:create && npm run db:test:load"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.28.0",
