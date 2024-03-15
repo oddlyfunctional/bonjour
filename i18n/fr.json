@@ -1,0 +1,35 @@
+{
+  "ACCOUNT": {
+    "SIGN_UP_PAGE_TITLE": "Créez votre compte",
+    "EMAIL_PLACEHOLDER": "Email",
+    "PASSWORD_PLACEHOLDER": "********",
+    "SIGN_IN_BUTTON": "S'inscrire",
+    "SIGN_UP_BUTTON": "S'abonner",
+    "SIGN_OUT_BUTTON": "Se déconnecter",
+    "CREATE_ACCOUNT_LINK": "Créez votre compte",
+    "VERIFY_YOUR_ACCOUNT": "Veuillez vérifier votre email pour vérifier votre compte.",
+    "ALREADY_REGISTERED": "Vous avez déjà un compte ?",
+    "ERRORS": {
+      "Unauthorized": "Courriel ou mot de passe incorrect, veuillez réessayer.",
+      "EmailAlreadyTaken": "Il existe déjà un compte avec cet email.",
+      "PasswordTooShort": "Votre mot de passe doit contenir au moins 8 caractères.",
+      "PasswordNotSafe": "Votre mot de passe doit contenir au moins un caractère minuscule, un caractère majuscule, un chiffre et un caractère spécial."
+    }
+  },
+  "PROFILE": {
+    "CREATE_PROFILE_PAGE_TITLE": "Créez votre profil",
+    "AVATAR_LABEL": "Changer d'avatar",
+    "NAME_PLACEHOLDER": "Quel est votre nom ?",
+    "SAVE_BUTTON": "Enregistrer les modifications",
+    "CREATE_BUTTON": "Terminer"
+  },
+  "CHAT": {
+    "SELECT_A_CHAT": "Démarrer ou sélectionner une discussion",
+    "PROFILE_DRAWER_TITLE": "Profil",
+    "NEW_CHAT_DRAWER_TITLE": "nouvelle discussion",
+    "CHAT_NAME_PLACEHOLDER": "Tapez le nouveau nom de la discussion",
+    "CREATE_CHAT_BUTTON": "Créez",
+    "CHAT_BLANKSLATE": "C'est un peu vide ici, pourquoi ne pas envoyer le premier message ?",
+    "MESSAGE_PLACEHOLDER": "Tapez un message"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "ACCOUNT": {
+    "SIGN_UP_PAGE_TITLE": "Crie sua conta",
+    "EMAIL_PLACEHOLDER": "Email",
+    "PASSWORD_PLACEHOLDER": "********",
+    "SIGN_IN_BUTTON": "Entrar",
+    "SIGN_UP_BUTTON": "Cadastrar-se",
+    "SIGN_OUT_BUTTON": "Sair",
+    "CREATE_ACCOUNT_LINK": "Criar conta",
+    "VERIFY_YOUR_ACCOUNT": "Confira seu email para confirmar sua conta.",
+    "ALREADY_REGISTERED": "Já possui uma conta?",
+    "ERRORS": {
+      "Unauthorized": "Email ou senha incorretos, por favor tente de novo.",
+      "EmailAlreadyTaken": "Já existe uma conta com este email.",
+      "PasswordTooShort": "Sua senha deve conter pelo menos 8 caracteres.",
+      "PasswordNotSafe": "Sua senha deve conter pelo menos 1 de cada: letra minúscula, letra maiúscula, número e caracter especial."
+    }
+  },
+  "PROFILE": {
+    "CREATE_PROFILE_PAGE_TITLE": "Crie seu perfil",
+    "AVATAR_LABEL": "Mudar foto",
+    "NAME_PLACEHOLDER": "Qual seu nome?",
+    "SAVE_BUTTON": "Salvar",
+    "CREATE_BUTTON": "Finalizar"
+  },
+  "CHAT": {
+    "SELECT_A_CHAT": "Comece ou selecione um chat",
+    "PROFILE_DRAWER_TITLE": "Perfil",
+    "NEW_CHAT_DRAWER_TITLE": "Novo chat",
+    "CHAT_NAME_PLACEHOLDER": "Digite o nome do chat",
+    "CREATE_CHAT_BUTTON": "Criar",
+    "CHAT_BLANKSLATE": "Está meio vazio aqui, que tal enviar a primeira mensagem?",
+    "MESSAGE_PLACEHOLDER": "Digite uma mensagem"
+  }
+}

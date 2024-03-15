@@ -5,10 +5,14 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { LanguageSelector } from "@/app/components/LanguageSelector";
 import { Sacramento } from "next/font/google";
 
-// If loading a variable font, you don't need to specify the font weight
-const sacramento = Sacramento({ weight: "400", subsets: ["latin"] });
+const sacramento = Sacramento({
+  weight: "400",
+  subsets: ["latin"],
+  preload: true,
+});
 
 export default async function Home({
   params: { locale },
@@ -27,6 +31,7 @@ export default async function Home({
       <Link href={`/${locale}/account/registration`} className="mt-4">
         {t("CREATE_ACCOUNT_LINK")}
       </Link>
+      <LanguageSelector />
     </div>
   );
 }

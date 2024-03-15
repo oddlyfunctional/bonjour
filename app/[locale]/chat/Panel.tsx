@@ -7,6 +7,7 @@ import { Avatar } from "@/app/components/Avatar";
 import { Drawer } from "@/app/components/Drawer";
 import { EditProfile } from "@/app/components/EditProfile";
 import * as Icons from "@/app/components/Icons";
+import { LanguageSelector } from "@/app/components/LanguageSelector";
 import { SignOut } from "@/app/components/SignOut";
 import type { Profile } from "@/app/core/contexts/account/profile";
 import type { Chat } from "@/app/core/contexts/chat/chat";
@@ -42,8 +43,9 @@ const DrawerChildren = ({
               onSaved={onFinished}
             />
           </div>
-          <div className="justify-self-end">
-            <SignOut className="w-full border-t p-2" />
+          <div className="flex flex-row justify-between justify-self-end">
+            <SignOut className="p-4" />
+            <LanguageSelector />
           </div>
         </>
       );
