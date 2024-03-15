@@ -1,37 +1,35 @@
 "use client";
 import { Send } from "@/app/components/Icons";
 import { DeliveryStatus, type Message } from "@/app/core/contexts/chat/message";
-import type { ChatId, UserId } from "@/app/core/core";
-import { useChannel } from "@/app/lib/hooks";
+import type { UserId } from "@/app/core/core";
+import { useAppDispatch, useAppSelector, useChannel } from "@/app/lib/hooks";
+import { chatSelector } from "@/store/chatSlice";
+import { messageSent } from "@/store/messagesSlice";
 import { useTranslations } from "next-intl";
 import { useRef } from "react";
 
-export const NewMessage = ({
-  chatId,
-  currentUserId,
-}: {
-  chatId: ChatId;
-  currentUserId: UserId;
-}) => {
+export const NewMessage = ({ currentUserId }: { currentUserId: UserId }) => {
+  const chat = useAppSelector(chatSelector);
+  const dispatch = useAppDispatch();
   const formRef = useRef<HTMLFormElement>(null);
-  const channelRef = useChannel(`chat:${chatId}`);
+  const channelRef = useChannel(`chat:${chat.id}`);
   const t = useTranslations("CHAT");
 
   const submit = async (formData: FormData) => {
-    // TODO: store in local store and check for new messages
-    // if they are already present
     const message: Message = {
       id: crypto.randomUUID(),
       authorId: currentUserId,
       body: formData.get("body") as string,
-      chatId,
+      chatId: chat.id,
       sentAt: new Date(),
       deliveryStatus: DeliveryStatus.Pending,
     };
+    dispatch(messageSent(message));
     channelRef.current?.push("message", {
       sessionId: "session-id", // TODO: replace with actual session id
       message,
     });
+
     formRef.current?.reset();
   };
 

@@ -1,5 +1,7 @@
+import type { AppDispatch, AppStore, RootState } from "@/store";
 import { Socket, type Channel } from "phoenix";
 import { useEffect, useRef } from "react";
+import { useDispatch, useSelector, useStore } from "react-redux";
 
 export const useChannel = (
   topic: string,
@@ -23,3 +25,7 @@ export const useChannel = (
 
   return channelRef;
 };
+
+export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
+export const useAppSelector = useSelector.withTypes<RootState>();
+export const useAppStore = useStore.withTypes<AppStore>();

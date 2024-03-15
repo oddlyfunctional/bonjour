@@ -1,14 +1,12 @@
 "use client";
-import type { Chat, MemberReadModel } from "@/app/core/contexts/chat/chat";
+import { useAppSelector } from "@/app/lib/hooks";
+import { chatSelector } from "@/store/chatSlice";
+import { fullMembersSelector } from "@/store/membersSlice";
 import { useMemo } from "react";
 
-export const ChatHeader = ({
-  chat,
-  members,
-}: {
-  chat: Chat;
-  members: Array<MemberReadModel>;
-}) => {
+export const ChatHeader = () => {
+  const chat = useAppSelector(chatSelector);
+  const members = useAppSelector(fullMembersSelector);
   const names = useMemo(
     () => members.slice(0, 4).map((member) => member.name),
     [members],

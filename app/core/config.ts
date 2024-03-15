@@ -1,7 +1,7 @@
+import { StaticPepper, makeStaticPepper } from "@/app/lib/hash";
+import { Result, error, ok } from "@/app/lib/result";
 import { ClientConfig } from "pg";
 import { ZodError, ZodType, z } from "zod";
-import { Result, ok, error } from "@/app/lib/result";
-import { StaticPepper, makeStaticPepper } from "@/app/lib/hash";
 
 export type MailerConfig = {
   noReplyAddress: string;
@@ -14,7 +14,7 @@ export type Config = {
   mailer: MailerConfig;
 };
 
-type Store = { [key: string]: string | undefined };
+type Store = Record<string, string | undefined>;
 
 const sqlSchema: ZodType<ClientConfig> = z.object({
   connectionString: z.string(),

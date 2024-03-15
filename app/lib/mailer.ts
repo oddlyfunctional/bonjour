@@ -3,7 +3,7 @@ type Email = {
   from: string;
   subject: string;
   template: string;
-  params: { [key: string]: string };
+  params: Record<string, string>;
 };
 
 export type Mailer = {

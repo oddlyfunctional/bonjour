@@ -9,10 +9,13 @@ import {
   Message,
   schema,
 } from "@/app/core/contexts/chat/message";
-import type { ChatId, UserId } from "@/app/core/core";
-import { useChannel } from "@/app/lib/hooks";
+import type { UserId } from "@/app/core/core";
+import { useAppDispatch, useAppSelector, useChannel } from "@/app/lib/hooks";
+import { chatSelector } from "@/store/chatSlice";
+import { membersSelector } from "@/store/membersSlice";
+import { fullMessagesSelector, messageReceived } from "@/store/messagesSlice";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 
 const Status = ({ deliveryStatus }: { deliveryStatus: DeliveryStatus }) => {
   switch (deliveryStatus) {
@@ -87,12 +90,12 @@ const MessageBubble = ({
 
 const renderMessages = (
   messages: Array<Message>,
-  members: Map<UserId, MemberReadModel>,
+  members: Record<UserId, MemberReadModel>,
   currentUserId: UserId,
 ) => {
   const children: Array<React.ReactNode> = [];
   messages.forEach((message, i) => {
-    const member = members.get(message.authorId);
+    const member = members[message.authorId];
     if (!member) {
       console.error(
         `Couldn't find member data for user id ${message.authorId}`,
@@ -112,44 +115,34 @@ const renderMessages = (
   return children;
 };
 
-export const Messages = ({
-  chatId,
-  messages: initialMessages,
-  currentUserId,
-  members,
-}: {
-  chatId: ChatId;
-  messages: Array<Message>;
-  currentUserId: UserId;
-  members: Map<UserId, MemberReadModel>;
-}) => {
+export const Messages = ({ currentUserId }: { currentUserId: UserId }) => {
   const t = useTranslations("CHAT");
-  const [messages, setMessages] = useState(initialMessages);
-  useChannel(`chat:${chatId}`, (channel) => {
+  const chat = useAppSelector(chatSelector);
+  const messages = useAppSelector(fullMessagesSelector);
+  const members = useAppSelector(membersSelector);
+  const dispatch = useAppDispatch();
+  const chatBottomRef = useRef<HTMLDivElement>(null);
+  useChannel(`chat:${chat.id}`, (channel) => {
     channel.on("message", (event) => {
       const validatedMessage = schema.safeParse({
         ...event.message,
         sentAt: new Date(Date.parse(event.message.sentAt)),
       });
       if (validatedMessage.success) {
-        setMessages((messages) => [...messages, validatedMessage.data]);
+        dispatch(messageReceived(validatedMessage.data));
+        chatBottomRef.current && chatBottomRef.current.scrollIntoView();
       } else {
         throw validatedMessage.error;
       }
     });
   });
 
-  const chatBottomRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    chatBottomRef.current && chatBottomRef.current.scrollIntoView();
-  }, [messages]);
-
   return (
     <div className="flex h-full w-full flex-col overflow-y-auto bg-gray-200 p-4">
       {messages.length === 0 && (
         <div className="mt-4 text-center">{t("CHAT_BLANKSLATE")}</div>
       )}
-      {renderMessages(messages, members, currentUserId)}
+      {renderMessages(messages, members.map, currentUserId)}
       <div ref={chatBottomRef} />
     </div>
   );
