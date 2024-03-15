@@ -11,6 +11,7 @@ import {
 } from "@/app/core/contexts/chat/message";
 import type { ChatId, UserId } from "@/app/core/core";
 import { useChannel } from "@/app/lib/hooks";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
 const Status = ({ deliveryStatus }: { deliveryStatus: DeliveryStatus }) => {
@@ -75,11 +76,7 @@ const MessageBubble = ({
         <div>{message.body}</div>
         <div className="mt-2 flex flex-row justify-between">
           <span className="mr-2 text-xs text-gray-500">
-            <TimeAgo
-              date={message.sentAt}
-              minDiffInMinutes={10}
-              maxDiffInMinutes={60 * 24}
-            />
+            <TimeAgo date={message.sentAt} />
           </span>
           <Status deliveryStatus={message.deliveryStatus} />
         </div>
@@ -126,6 +123,7 @@ export const Messages = ({
   currentUserId: UserId;
   members: Map<UserId, MemberReadModel>;
 }) => {
+  const t = useTranslations("CHAT");
   const [messages, setMessages] = useState(initialMessages);
   useChannel(`chat:${chatId}`, (channel) => {
     channel.on("message", (event) => {
@@ -149,9 +147,7 @@ export const Messages = ({
   return (
     <div className="flex h-full w-full flex-col overflow-y-auto bg-gray-200 p-4">
       {messages.length === 0 && (
-        <div className="mt-4 text-center">
-          It's empty here, why not send the first message?
-        </div>
+        <div className="mt-4 text-center">{t("CHAT_BLANKSLATE")}</div>
       )}
       {renderMessages(messages, members, currentUserId)}
       <div ref={chatBottomRef} />

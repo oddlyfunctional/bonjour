@@ -3,6 +3,7 @@ import { Send } from "@/app/components/Icons";
 import { DeliveryStatus, type Message } from "@/app/core/contexts/chat/message";
 import type { ChatId, UserId } from "@/app/core/core";
 import { useChannel } from "@/app/lib/hooks";
+import { useTranslations } from "next-intl";
 import { useRef } from "react";
 
 export const NewMessage = ({
@@ -14,6 +15,7 @@ export const NewMessage = ({
 }) => {
   const formRef = useRef<HTMLFormElement>(null);
   const channelRef = useChannel(`chat:${chatId}`);
+  const t = useTranslations("CHAT");
 
   const submit = async (formData: FormData) => {
     // TODO: store in local store and check for new messages
@@ -37,7 +39,7 @@ export const NewMessage = ({
     <form ref={formRef} action={submit} className="flex w-full flex-row">
       <textarea
         name="body"
-        placeholder="What are you thinking?"
+        placeholder={t("MESSAGE_PLACEHOLDER")}
         className="m-2 grow resize-none p-2"
         required
         onKeyDown={(ev) => {

@@ -1,0 +1,35 @@
+{
+  "ACCOUNT": {
+    "SIGN_UP_PAGE_TITLE": "Create your account",
+    "EMAIL_PLACEHOLDER": "Email",
+    "PASSWORD_PLACEHOLDER": "********",
+    "SIGN_IN_BUTTON": "Sign in",
+    "SIGN_UP_BUTTON": "Sign up",
+    "SIGN_OUT_BUTTON": "Sign out",
+    "CREATE_ACCOUNT_LINK": "Create account",
+    "VERIFY_YOUR_ACCOUNT": "Please check your email to verify your account.",
+    "ALREADY_REGISTERED": "Already have an account?",
+    "ERRORS": {
+      "Unauthorized": "Incorrect email or password, please try again.",
+      "EmailAlreadyTaken": "There is already an account with this email.",
+      "PasswordTooShort": "Your password must contain at least 8 characters.",
+      "PasswordNotSafe": "Your password must contain at least 1 of each: lowercase character, uppercase character, digit and special character."
+    }
+  },
+  "PROFILE": {
+    "CREATE_PROFILE_PAGE_TITLE": "Create your profile",
+    "AVATAR_LABEL": "Change avatar",
+    "NAME_PLACEHOLDER": "What is your name?",
+    "SAVE_BUTTON": "Save",
+    "CREATE_BUTTON": "Finish"
+  },
+  "CHAT": {
+    "SELECT_A_CHAT": "Start or select a chat",
+    "PROFILE_DRAWER_TITLE": "Profile",
+    "NEW_CHAT_DRAWER_TITLE": "New chat",
+    "CHAT_NAME_PLACEHOLDER": "Type the new chat name",
+    "CREATE_CHAT_BUTTON": "Create",
+    "CHAT_BLANKSLATE": "It's empty here, why not send the first message?",
+    "MESSAGE_PLACEHOLDER": "Type a message"
+  }
+}

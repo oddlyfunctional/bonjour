@@ -4,6 +4,7 @@ import * as ProfileRepo from "@/app/core/contexts/account/profileRepository";
 import * as Profile from "@/app/core/contexts/account/profileServices";
 import { load } from "@/app/core/startup";
 import * as Option from "@/app/lib/option";
+import { getLocale } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { currentUser } from "./auth";
@@ -28,9 +29,10 @@ export const createProfile = async (form: FormData) => {
     user.id,
     profileRepo,
   );
-  if (!result.ok) return redirect("/");
 
-  revalidatePath("/account/profile");
+  const locale = await getLocale();
+  if (!result.ok) return redirect(`/${locale}`);
+  revalidatePath(`/${locale}/account/profile`);
 };
 
 export const updateProfile = async (form: FormData) => {
@@ -45,7 +47,8 @@ export const updateProfile = async (form: FormData) => {
     user.id,
     profileRepo,
   );
-  if (!result.ok) return redirect("/");
 
-  revalidatePath("/account/profile");
+  const locale = await getLocale();
+  if (!result.ok) return redirect(`/${locale}`);
+  revalidatePath(`/${locale}/account/profile`);
 };

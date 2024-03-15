@@ -3,6 +3,7 @@ import { Avatar } from "@/app/components/Avatar";
 import * as Icons from "@/app/components/Icons";
 import type { Profile } from "@/app/core/contexts/account/profile";
 import type { UserId } from "@/app/core/core";
+import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 
 export const EditProfile = ({
@@ -18,6 +19,7 @@ export const EditProfile = ({
 }) => {
   const avatarRef = useRef<HTMLInputElement>(null);
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatarUrl);
+  const t = useTranslations("PROFILE");
 
   return (
     <form
@@ -47,26 +49,24 @@ export const EditProfile = ({
           }}
         >
           <Icons.Camera />
-          <div className="mt-2 text-xs">Change avatar</div>
+          <div className="mt-2 text-xs">{t("AVATAR_LABEL")}</div>
         </div>
         <Avatar userId={currentUserId} src={avatarUrl} size="lg" />
       </div>
-      <div className="ml-4 flex w-full flex-col">
-        <label className="flex w-full flex-col">
-          <span className="font-semibold">Name:</span>
-          <input
-            className="w-full rounded p-2 outline"
-            defaultValue={profile?.name}
-            name="name"
-            type="text"
-            required
-          />
-        </label>
+      <div className="mt-8 flex w-full flex-col">
+        <input
+          className="w-full rounded p-2 outline"
+          defaultValue={profile?.name}
+          name="name"
+          type="text"
+          placeholder={t("NAME_PLACEHOLDER")}
+          required
+        />
         <button
           className="mt-4 rounded border border-black bg-blue-600 p-2 text-white"
           type="submit"
         >
-          {profile ? "Save" : "Finish"}
+          {t(profile ? "SAVE_BUTTON" : "CREATE_BUTTON")}
         </button>
       </div>
     </form>

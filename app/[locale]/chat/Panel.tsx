@@ -1,8 +1,8 @@
 "use client";
 
+import { ChatRow } from "@/app/[locale]/chat/ChatRow";
+import { NewChat } from "@/app/[locale]/chat/NewChat";
 import { updateProfile } from "@/app/actions/profile";
-import { ChatRow } from "@/app/chat/ChatRow";
-import { NewChat } from "@/app/chat/NewChat";
 import { Avatar } from "@/app/components/Avatar";
 import { Drawer } from "@/app/components/Drawer";
 import { EditProfile } from "@/app/components/EditProfile";
@@ -11,23 +11,13 @@ import { SignOut } from "@/app/components/SignOut";
 import type { Profile } from "@/app/core/contexts/account/profile";
 import type { Chat } from "@/app/core/contexts/chat/chat";
 import type { UserId } from "@/app/core/core";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 type DrawerContent =
   | null
   | { _tag: "Profile"; profile: Profile }
   | { _tag: "NewChat" };
-
-const drawerTitle = (content: DrawerContent) => {
-  if (content === null) return "";
-
-  switch (content._tag) {
-    case "Profile":
-      return "Profile";
-    case "NewChat":
-      return "New chat";
-  }
-};
 
 const DrawerChildren = ({
   content,
@@ -58,6 +48,7 @@ const DrawerChildren = ({
         </>
       );
     case "NewChat":
+      // TODO: Select chat after being created
       return <NewChat onSaved={onFinished} />;
   }
 };
@@ -72,6 +63,18 @@ export const Panel = ({
   currentUserId: UserId;
 }) => {
   const [drawerContent, setDrawerContent] = useState<DrawerContent>(null);
+  const t = useTranslations("CHAT");
+
+  const drawerTitle = (content: DrawerContent) => {
+    if (content === null) return "";
+
+    switch (content._tag) {
+      case "Profile":
+        return t("PROFILE_DRAWER_TITLE");
+      case "NewChat":
+        return t("NEW_CHAT_DRAWER_TITLE");
+    }
+  };
 
   return (
     <div className="relative flex h-full w-full flex-col overflow-hidden">

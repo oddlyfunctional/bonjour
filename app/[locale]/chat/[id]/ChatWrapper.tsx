@@ -1,8 +1,8 @@
+import { ChatHeader } from "@/app/[locale]/chat/[id]/ChatHeader";
+import { Messages } from "@/app/[locale]/chat/[id]/Messages";
+import { NewMessage } from "@/app/[locale]/chat/[id]/NewMessage";
 import { getMembers } from "@/app/actions/chat";
 import { getMessages } from "@/app/actions/message";
-import { ChatHeader } from "@/app/chat/[id]/ChatHeader";
-import { Messages } from "@/app/chat/[id]/Messages";
-import { NewMessage } from "@/app/chat/[id]/NewMessage";
 import type { Chat, MemberReadModel } from "@/app/core/contexts/chat/chat";
 import type { UserId } from "@/app/core/core";
 

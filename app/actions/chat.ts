@@ -3,6 +3,7 @@ import * as ChatRepo from "@/app/core/contexts/chat/chatRepository";
 import * as Chat from "@/app/core/contexts/chat/chatServices";
 import { ChatId } from "@/app/core/core";
 import { load } from "@/app/core/startup";
+import { getLocale } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { currentUser } from "./auth";
@@ -19,7 +20,12 @@ export const getChat = async (chatId: ChatId) => {
   const user = await currentUser();
   const chatRepo = ChatRepo.make(env.sql);
   const chat = await chatRepo.getById(chatId);
-  if (!chat || !chat.members.includes(user.id)) redirect("/");
+
+  // TODO: check membership in query
+  if (!chat || !chat.members.includes(user.id)) {
+    const locale = await getLocale();
+    redirect(`/${locale}`);
+  }
 
   return chat;
 };

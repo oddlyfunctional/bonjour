@@ -5,6 +5,7 @@ import * as AccountRepo from "@/app/core/contexts/account/accountRepository";
 import * as Account from "@/app/core/contexts/account/accountServices";
 import { load } from "@/app/core/startup";
 import { error } from "@/app/lib/result";
+import { getLocale } from "next-intl/server";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -51,7 +52,8 @@ export const signIn = async (_state: unknown, form: FormData) => {
     };
 
   cookies().set("sessionId", signedIn.value.sessionId);
-  redirect("/");
+  const locale = await getLocale();
+  redirect(`/${locale}`);
 };
 
 export const signOut = async () => {
@@ -63,7 +65,8 @@ export const signOut = async () => {
   const accountRepo = AccountRepo.make(env.sql);
   await Account.signOut(sessionId, accountRepo);
   cookies().delete("sessionId");
-  redirect("/");
+  const locale = await getLocale();
+  redirect(`/${locale}`);
 };
 
 export const isSignedIn = async () => {
@@ -78,9 +81,10 @@ export const isSignedIn = async () => {
 
 export const currentUser = async () => {
   const sessionId = cookies().get("sessionId")?.value;
+  const locale = getLocale();
   if (sessionId === undefined || sessionId == "") {
     console.error(new Error("Unauthorized"));
-    return redirect("/");
+    return redirect(`/${locale}`);
   }
 
   const { env } = await load();
@@ -88,7 +92,7 @@ export const currentUser = async () => {
   const user = await accountRepo.getBySessionId(sessionId);
   if (!user) {
     console.error(new Error("Unauthorized"));
-    return redirect("/");
+    return redirect(`/${locale}`);
   }
 
   return user;
