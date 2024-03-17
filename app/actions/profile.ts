@@ -7,6 +7,7 @@ import * as Option from "@/app/lib/option";
 import { getLocale } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { z } from "zod";
 import { currentUser } from "./auth";
 
 export const getProfile = async () => {
@@ -20,11 +21,21 @@ export const createProfile = async (form: FormData) => {
   const { env } = await load();
   const user = await currentUser();
   const profileRepo = ProfileRepo.make(env.sql);
+
+  const validatedProfile = z
+    .object({
+      name: z.string(),
+      avatarUrl: z.nullable(z.string()),
+    })
+    .safeParse({
+      name: form.get("name"),
+      avatarUrl: form.get("avatarUrl"),
+    });
+  if (!validatedProfile.success) throw validatedProfile.error;
   const result = await Profile.createProfile(
     {
-      name: form.get("name") as string,
-      // TODO: handle image upload
-      avatarUrl: Option.none,
+      name: validatedProfile.data.name,
+      avatarUrl: Option.from(validatedProfile.data.avatarUrl),
     },
     user.id,
     profileRepo,
@@ -39,10 +50,21 @@ export const updateProfile = async (form: FormData) => {
   const { env } = await load();
   const user = await currentUser();
   const profileRepo = ProfileRepo.make(env.sql);
+
+  const validatedProfile = z
+    .object({
+      name: z.nullable(z.string()),
+      avatarUrl: z.nullable(z.string()),
+    })
+    .safeParse({
+      name: form.get("name"),
+      avatarUrl: form.get("avatarUrl"),
+    });
+  if (!validatedProfile.success) throw validatedProfile.error;
   const result = await Profile.updateProfile(
     {
-      name: Option.from(form.get("name") as string | null),
-      avatarUrl: Option.none,
+      name: Option.from(validatedProfile.data.name),
+      avatarUrl: Option.from(validatedProfile.data.avatarUrl),
     },
     user.id,
     profileRepo,

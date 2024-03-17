@@ -12,6 +12,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "avatar.iran.liara.run",
       },
+      {
+        protocol: "https",
+        hostname: "bonjour-chat.s3.eu-west-3.amazonaws.com",
+      },
     ],
   },
 };

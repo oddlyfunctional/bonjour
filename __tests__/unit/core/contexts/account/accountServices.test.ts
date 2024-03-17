@@ -79,6 +79,7 @@ describe("accountServices", () => {
 
     // won't be used, should fail if accessed
     sql: null as any,
+    s3: null as any,
   };
 
   describe("createAccount", () => {
