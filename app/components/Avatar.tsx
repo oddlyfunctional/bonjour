@@ -3,14 +3,16 @@ import Image from "next/image";
 
 type Size = "sm" | "md" | "lg";
 
-const getSizePx = (size: Size) => {
+const getSizeProps = (
+  size: Size,
+): [`${number}px`, `h-${number} w-${number}`] => {
   switch (size) {
     case "sm":
-      return "h-8 w-8";
+      return ["32px", "h-8 w-8"];
     case "md":
-      return "h-16 w-16";
+      return ["64px", "h-16 w-16"];
     case "lg":
-      return "h-32 w-32";
+      return ["128px", "h-32 w-32"];
   }
 };
 
@@ -32,15 +34,17 @@ export const Avatar = ({
   className,
   ...props
 }: Props) => {
+  const [sizes, containerSizeClassName] = getSizeProps(size);
   return (
     <div
-      className={`${position} ${getSizePx(size)}${className ? " " + className : ""}`}
+      className={`${position} ${containerSizeClassName}${className ? " " + className : ""}`}
     >
       <Image
         src={src}
         alt={alt}
         className={`rounded-full object-cover ring-1`}
         fill
+        sizes={sizes}
         {...props}
       ></Image>
     </div>

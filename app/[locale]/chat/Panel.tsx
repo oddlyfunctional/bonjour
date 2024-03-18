@@ -98,6 +98,7 @@ export const Panel = ({
           size="md"
           className="cursor-pointer"
           onClick={() => setDrawerContent({ _tag: "Profile", profile })}
+          priority
         />
         <div>
           <Icons.ChatLeft
