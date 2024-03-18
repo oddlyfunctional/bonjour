@@ -21,7 +21,10 @@
     "AVATAR_LABEL": "Change avatar",
     "NAME_PLACEHOLDER": "What is your name?",
     "SAVE_BUTTON": "Save",
-    "CREATE_BUTTON": "Finish"
+    "CREATE_BUTTON": "Finish",
+    "ERRORS": {
+      "FileTooLarge": "Please select an image smaller than 2MB."
+    }
   },
   "CHAT": {
     "SELECT_A_CHAT": "Start or select a chat",

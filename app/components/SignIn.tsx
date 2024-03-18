@@ -1,7 +1,7 @@
 "use client";
 
 import { signIn } from "@/app/actions/auth";
-import { SubmitError } from "@/app/components/SubmitError";
+import { SubmitError } from "@/app/components/ErrorMessage";
 import { useTranslations } from "next-intl";
 import { useFormState, useFormStatus } from "react-dom";
 

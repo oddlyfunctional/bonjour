@@ -12,6 +12,8 @@ export type AwsConfig = {
   secretAccessKey: string;
 };
 
+export const MAX_FILE_SIZE = 1024 * 1024 * 2; // 2MB
+
 export const makeClient = (config: AwsConfig) =>
   new S3Client({
     region: config.region,
@@ -40,7 +42,7 @@ export const makePresignedPost = async (
       Key: `uploads/${folder}/${random.nextUuid()}`,
       Conditions: [
         { bucket: bucket },
-        ["content-length-range", 0, 2097152],
+        ["content-length-range", 0, MAX_FILE_SIZE],
         ["starts-with", "$Content-Type", "image/"],
         { acl: "public-read" },
       ],

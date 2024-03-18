@@ -1,7 +1,7 @@
 "use client";
 
 import { signUp } from "@/app/actions/auth";
-import { SubmitError } from "@/app/components/SubmitError";
+import { SubmitError } from "@/app/components/ErrorMessage";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useFormState, useFormStatus } from "react-dom";

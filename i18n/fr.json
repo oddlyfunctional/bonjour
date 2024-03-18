@@ -21,7 +21,10 @@
     "AVATAR_LABEL": "Changer d'avatar",
     "NAME_PLACEHOLDER": "Quel est votre nom ?",
     "SAVE_BUTTON": "Enregistrer les modifications",
-    "CREATE_BUTTON": "Terminer"
+    "CREATE_BUTTON": "Terminer",
+    "ERRORS": {
+      "FileTooLarge": "Veuillez sélectionner une image inférieure à 2MB."
+    }
   },
   "CHAT": {
     "SELECT_A_CHAT": "Démarrer ou sélectionner une discussion",

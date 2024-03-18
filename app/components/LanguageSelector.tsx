@@ -26,7 +26,9 @@ export const LanguageSelector = () => {
       }}
     >
       {locales.map((locale) => (
-        <option value={locale}>{languageNames.of(locale)}</option>
+        <option value={locale} key={locale}>
+          {languageNames.of(locale)}
+        </option>
       ))}
     </select>
   );

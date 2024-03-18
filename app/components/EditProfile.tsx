@@ -1,10 +1,15 @@
 "use client";
 import { getPresignedPost } from "@/app/actions/upload";
 import { Avatar } from "@/app/components/Avatar";
+import { SubmitError } from "@/app/components/ErrorMessage";
+import {
+  FilePicker,
+  Error as FilePickerError,
+} from "@/app/components/FilePicker";
 import * as Icons from "@/app/components/Icons";
 import type { Profile } from "@/app/core/contexts/account/profile";
 import type { UserId } from "@/app/core/core";
-import { upload } from "@/app/lib/s3";
+import { MAX_FILE_SIZE, upload } from "@/app/lib/s3";
 import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
@@ -23,20 +28,23 @@ export const EditProfile = ({
   const avatarRef = useRef<HTMLInputElement>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatarUrl);
+  const [avatarError, setAvatarError] = useState<FilePickerError | null>(null);
   const t = useTranslations("PROFILE");
   const { pending } = useFormStatus();
 
   return (
     <div>
-      <input
-        ref={avatarRef}
-        type="file"
+      <FilePicker
         className="hidden"
         accept="image/*"
-        onChange={(ev) => {
-          if (ev.currentTarget.files && ev.currentTarget.files.length > 0) {
-            setAvatarUrl(URL.createObjectURL(ev.currentTarget.files[0]));
-            setAvatarFile(ev.currentTarget.files[0]);
+        ref={avatarRef}
+        maxSize={MAX_FILE_SIZE}
+        onChange={(file) => {
+          if (file.ok) {
+            setAvatarUrl(URL.createObjectURL(file.value));
+            setAvatarFile(file.value);
+          } else {
+            setAvatarError(file.error);
           }
         }}
       />
@@ -65,6 +73,7 @@ export const EditProfile = ({
           </div>
           <Avatar userId={currentUserId} src={avatarUrl} size="lg" />
         </div>
+        {avatarError && <SubmitError error={t(`ERRORS.${avatarError}`)} />}
         <div className="mt-8 flex w-full flex-col">
           <input
             className="w-full rounded p-2 outline"
