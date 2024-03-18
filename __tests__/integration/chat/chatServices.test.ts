@@ -9,6 +9,7 @@ import {
   createChat,
   removeChat,
   removeMember,
+  updateChat,
 } from "@/app/core/contexts/chat/chatServices";
 import { Env } from "@/app/core/env";
 import { load } from "@/app/core/startup";
@@ -43,6 +44,16 @@ describe("chatServices integration tests", () => {
     const chat = await createChat("some chat", user.id, chatRepo);
     expect(await chatRepo.getById(chat.id)).toEqual(chat);
 
+    const chatUpdated = await updateChat(
+      { chatId: chat.id, name: "new name" },
+      user.id,
+      chatRepo,
+    );
+    if (!chatUpdated.ok) fail(chatUpdated.error);
+    expect(chatUpdated.value).toEqual({ chatId: chat.id, name: "new name" });
+    chat.name = "new name";
+    expect(await chatRepo.getById(chat.id)).toEqual(chat);
+
     const newAdmin = await makeUser(config, env);
     const memberAdded = await addMember(
       { chatId: chat.id, newMemberId: newAdmin.id },
@@ -54,8 +65,8 @@ describe("chatServices integration tests", () => {
       chatId: chat.id,
       memberId: newAdmin.id,
     });
-    (chat.members = [user.id, newAdmin.id]),
-      expect(await chatRepo.getById(chat.id)).toEqual(chat);
+    chat.members = [user.id, newAdmin.id];
+    expect(await chatRepo.getById(chat.id)).toEqual(chat);
 
     const adminChanged = await changeAdmin(
       {

@@ -21,7 +21,6 @@ export const FilePicker = forwardRef(
         onChange={(ev) => {
           if (ev.currentTarget.files && ev.currentTarget.files.length > 0) {
             const file = ev.currentTarget.files[0];
-            console.log("============ SIZE", file.size, maxSize);
             if (maxSize !== undefined && file.size > maxSize) {
               onChange(error("FileTooLarge"));
             } else {

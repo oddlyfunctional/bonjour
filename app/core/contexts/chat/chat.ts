@@ -27,6 +27,27 @@ export const createChat = (cmd: CreateChat, userId: UserId): ChatCreated => ({
   },
 });
 
+export type UpdateChat = {
+  chat: Chat;
+  name: string;
+};
+export type ChatUpdated = {
+  chatId: ChatId;
+  name: string;
+};
+export type UpdateChatError = "Unauthorized";
+export const updateChat = (
+  cmd: UpdateChat,
+  userId: UserId,
+): Result<ChatUpdated, UpdateChatError> => {
+  if (cmd.chat.adminId !== userId) return error("Unauthorized");
+
+  return ok({
+    chatId: cmd.chat.id,
+    name: cmd.name,
+  });
+};
+
 export type DeleteChat = {
   chat: Chat;
 };
@@ -148,6 +169,7 @@ export interface Repository {
     userId: UserId,
   ) => Promise<Array<MemberReadModel>>;
   chatCreated: (event: ChatCreated) => Promise<ChatId>;
+  chatUpdated: (event: ChatUpdated) => Promise<void>;
   chatDeleted: (event: ChatDeleted) => Promise<void>;
   adminChanged: (event: AdminChanged) => Promise<void>;
   memberAdded: (event: MemberAdded) => Promise<void>;

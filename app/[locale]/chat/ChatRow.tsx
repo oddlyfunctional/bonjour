@@ -1,18 +1,11 @@
 "use client";
 import { Chat } from "@/app/core/contexts/chat/chat";
-import { UserId } from "@/app/core/core";
 import type { Route } from "next";
 import { useLocale } from "next-intl";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export const ChatRow = ({
-  chat,
-  currentUserId,
-}: {
-  chat: Chat;
-  currentUserId: UserId;
-}) => {
+export const ChatRow = ({ chat }: { chat: Chat }) => {
   const pathname = usePathname();
   const locale = useLocale();
   const href = `/${locale}/chat/${chat.id}` as Route;

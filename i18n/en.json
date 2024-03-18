@@ -1,4 +1,9 @@
 {
+  "DRAWER": {
+    "PROFILE_TITLE": "Profile",
+    "NEW_CHAT_TITLE": "New chat",
+    "EDIT_CHAT_TITLE": "Edit chat"
+  },
   "ACCOUNT": {
     "SIGN_UP_PAGE_TITLE": "Create your account",
     "EMAIL_PLACEHOLDER": "Email",
@@ -28,10 +33,9 @@
   },
   "CHAT": {
     "SELECT_A_CHAT": "Start or select a chat",
-    "PROFILE_DRAWER_TITLE": "Profile",
-    "NEW_CHAT_DRAWER_TITLE": "New chat",
     "CHAT_NAME_PLACEHOLDER": "Type the new chat name",
     "CREATE_CHAT_BUTTON": "Create",
+    "SAVE_CHAT_BUTTON": "Save",
     "CHAT_BLANKSLATE": "It's empty here, why not send the first message?",
     "MESSAGE_PLACEHOLDER": "Type a message"
   }

@@ -11,6 +11,7 @@ import {
   MemberAdded,
   MemberRemoved,
   Repository,
+  type ChatUpdated,
 } from "./chat";
 
 const schema: ZodType<Chat> = z.object({
@@ -109,6 +110,13 @@ export const make = (sql: Sql): Repository => ({
     }
     await sql.mutate(insertMembersStatement);
     return chatId;
+  },
+  chatUpdated: async (event: ChatUpdated) => {
+    await sql.mutate(SQL`
+      UPDATE chats
+      SET name = ${event.name}
+      WHERE id = ${event.chatId}
+    `);
   },
   chatDeleted: async (event: ChatDeleted) => {
     await sql.mutate(SQL`

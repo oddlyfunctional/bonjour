@@ -1,6 +1,6 @@
-import { CreateProfile } from "@/app/[locale]/account/profile/CreateProfile";
 import { currentUser } from "@/app/actions/auth";
 import { getProfile } from "@/app/actions/profile";
+import { CreateProfile } from "@/app/components/CreateProfile";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 

@@ -4,8 +4,8 @@ import * as Chat from "@/app/core/contexts/chat/chatServices";
 import { ChatId } from "@/app/core/core";
 import { load } from "@/app/core/startup";
 import { getLocale } from "next-intl/server";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { z } from "zod";
 import { currentUser } from "./auth";
 
 export const getChats = async () => {
@@ -15,28 +15,37 @@ export const getChats = async () => {
   return await chatRepo.getAllByUserId(user.id);
 };
 
-export const getChat = async (chatId: ChatId) => {
-  const { env } = await load();
-  const user = await currentUser();
-  const chatRepo = ChatRepo.make(env.sql);
-  const chat = await chatRepo.getById(chatId);
-
-  // TODO: check membership in query
-  if (!chat || !chat.members.includes(user.id)) {
-    const locale = await getLocale();
-    redirect(`/${locale}`);
-  }
-
-  return chat;
-};
-
 export const createChat = async (form: FormData) => {
   const { env } = await load();
   const user = await currentUser();
   const chatRepo = ChatRepo.make(env.sql);
-  await Chat.createChat(form.get("name") as string, user.id, chatRepo);
+  const chat = await Chat.createChat(
+    form.get("name") as string,
+    user.id,
+    chatRepo,
+  );
 
-  revalidatePath("/chat");
+  const locale = await getLocale();
+  redirect(`/${locale}/chat/${chat.id}`);
+};
+
+export const updateChat = async (chatId: ChatId, form: FormData) => {
+  const { env } = await load();
+  const user = await currentUser();
+  const chatRepo = ChatRepo.make(env.sql);
+  const validatedBody = z.object({ name: z.string() }).safeParse({
+    name: form.get("name"),
+  });
+  if (!validatedBody.success) throw validatedBody.error;
+  await Chat.updateChat(
+    { chatId, name: validatedBody.data.name },
+    user.id,
+    chatRepo,
+  );
+
+  const chat = await chatRepo.getById(chatId);
+  if (!chat) throw `Failed to find chat ${chatId}`;
+  return chat;
 };
 
 export const getMembers = async (chatId: ChatId) => {

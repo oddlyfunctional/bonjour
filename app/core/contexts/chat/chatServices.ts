@@ -15,6 +15,28 @@ export const createChat = async (
   };
 };
 
+export type UpdateChatError = Chat.UpdateChatError | "ChatNotFound";
+export const updateChat = async (
+  {
+    chatId,
+    name,
+  }: {
+    chatId: ChatId;
+    name: string;
+  },
+  userId: UserId,
+  repository: Chat.Repository,
+): Promise<Result<Chat.ChatDeleted, RemoveChatError>> => {
+  const chat = await repository.getById(chatId);
+  if (!chat) return error("ChatNotFound");
+
+  const event = Chat.updateChat({ chat, name }, userId);
+  if (event.ok) {
+    await repository.chatUpdated(event.value);
+  }
+  return event;
+};
+
 export type RemoveChatError = Chat.DeleteChatError | "ChatNotFound";
 export const removeChat = async (
   chatId: ChatId,

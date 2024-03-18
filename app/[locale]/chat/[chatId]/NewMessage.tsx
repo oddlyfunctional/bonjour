@@ -3,13 +3,14 @@ import { Send } from "@/app/components/Icons";
 import { DeliveryStatus, type Message } from "@/app/core/contexts/chat/message";
 import type { UserId } from "@/app/core/core";
 import { useAppDispatch, useAppSelector, useChannel } from "@/app/lib/hooks";
-import { chatSelector } from "@/store/chatSlice";
+import { currentChatSelector } from "@/store/chatsSlice";
 import { messageSent } from "@/store/messagesSlice";
 import { useTranslations } from "next-intl";
 import { useRef } from "react";
 
 export const NewMessage = ({ currentUserId }: { currentUserId: UserId }) => {
-  const chat = useAppSelector(chatSelector);
+  const chat = useAppSelector(currentChatSelector);
+  if (!chat) throw new Error("This component cannot be used without a chat");
   const dispatch = useAppDispatch();
   const formRef = useRef<HTMLFormElement>(null);
   const channelRef = useChannel(`chat:${chat.id}`);

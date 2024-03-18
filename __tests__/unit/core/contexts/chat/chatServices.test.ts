@@ -5,6 +5,7 @@ import {
   createChat,
   removeChat,
   removeMember,
+  updateChat,
 } from "@/app/core/contexts/chat/chatServices";
 import { Option, none } from "@/app/lib/option";
 import { error, ok } from "@/app/lib/result";
@@ -29,6 +30,7 @@ describe("chatServices", () => {
     getAllByUserId: async () => [],
     getMembers: async () => [],
     chatCreated: async () => mockChatId,
+    chatUpdated: async () => {},
     chatDeleted: async () => {},
     adminChanged: async () => {},
     memberAdded: async () => {},
@@ -44,6 +46,22 @@ describe("chatServices", () => {
         adminId: userId,
         members: [userId],
       });
+    });
+  });
+
+  describe("updateChat", () => {
+    it("succeeds", async () => {
+      mockChat = chat;
+      expect(
+        await updateChat({ chatId, name: "new name" }, userId, repository),
+      ).toEqual(ok({ chatId, name: "new name" }));
+    });
+
+    it("fails if can't find chat", async () => {
+      mockChat = none;
+      expect(
+        await updateChat({ chatId, name: "new name" }, userId, repository),
+      ).toEqual(error("ChatNotFound"));
     });
   });
 

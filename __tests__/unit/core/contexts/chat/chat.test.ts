@@ -1,18 +1,19 @@
-import { describe, expect, it } from "@jest/globals";
-import { ok, error } from "@/app/lib/result";
 import {
+  addMember,
+  changeAdmin,
   createChat,
   deleteChat,
-  changeAdmin,
-  addMember,
   removeMember,
+  updateChat,
 } from "@/app/core/contexts/chat/chat";
+import { error, ok } from "@/app/lib/result";
+import { describe, expect, it } from "@jest/globals";
 
 describe("Chat", () => {
   const chatId = 1;
   const userId = 2;
 
-  describe("create", () => {
+  describe("createChat", () => {
     it("returns event", () => {
       expect(createChat({ name: "some chat" }, userId)).toEqual({
         chat: {
@@ -24,7 +25,43 @@ describe("Chat", () => {
     });
   });
 
-  describe("remove", () => {
+  describe("updateChat", () => {
+    it("succeeds", () => {
+      expect(
+        updateChat(
+          {
+            chat: {
+              id: chatId,
+              adminId: userId,
+              name: "some chat",
+              members: [userId],
+            },
+            name: "new name",
+          },
+          userId,
+        ),
+      ).toEqual(ok({ chatId, name: "new name" }));
+    });
+
+    it("fails if user is not admin", () => {
+      expect(
+        updateChat(
+          {
+            chat: {
+              id: chatId,
+              adminId: -1,
+              name: "some chat",
+              members: [userId],
+            },
+            name: "new name",
+          },
+          userId,
+        ),
+      ).toEqual(error("Unauthorized"));
+    });
+  });
+
+  describe("deleteChat", () => {
     it("succeeds", () => {
       expect(
         deleteChat(
