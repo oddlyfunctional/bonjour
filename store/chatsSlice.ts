@@ -1,6 +1,6 @@
 import type { Chat } from "@/app/core/contexts/chat/chat";
 import type { ChatId } from "@/app/core/core";
-import type { RootState } from "@/store";
+import { createAppSelector } from "@/store/utils";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 export type ChatsState = {
@@ -27,7 +27,10 @@ export const chatsSlice = createSlice({
 export const { updateChat } = chatsSlice.actions;
 export const chatsReducer = chatsSlice.reducer;
 export const chatsSelector = chatsSlice.selectSlice;
-export const fullChatsSelector = (state: RootState) =>
-  state.chats.order.map((id) => state.chats.map[id]);
-export const currentChatSelector = (state: RootState) =>
-  (state.chats.currentChat && state.chats.map[state.chats.currentChat]) || null;
+export const fullChatsSelector = createAppSelector(chatsSelector, (chats) =>
+  chats.order.map((id) => chats.map[id]),
+);
+export const currentChatSelector = createAppSelector(
+  chatsSelector,
+  (chats) => (chats.currentChat && chats.map[chats.currentChat]) || null,
+);

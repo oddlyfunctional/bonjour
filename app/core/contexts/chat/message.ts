@@ -2,7 +2,6 @@ import { ChatId, MessageId, UserId } from "@/app/core/core";
 import { Clock } from "@/app/lib/clock";
 import { Option } from "@/app/lib/option";
 import { Result, error, ok } from "@/app/lib/result";
-import { z, type ZodType } from "zod";
 
 export enum DeliveryStatus {
   Pending = "Pending",
@@ -15,18 +14,9 @@ export type Message = {
   chatId: ChatId;
   authorId: UserId;
   body: string;
-  sentAt: Date;
+  sentAt: number; // it's simpler to serialize/deserialize without using Date
   deliveryStatus: DeliveryStatus;
 };
-
-export const schema: ZodType<Message> = z.object({
-  id: z.string(),
-  chatId: z.number(),
-  authorId: z.number(),
-  body: z.string(),
-  sentAt: z.date(),
-  deliveryStatus: z.nativeEnum(DeliveryStatus),
-});
 
 export type SendMessage = {
   id: MessageId;
@@ -38,7 +28,7 @@ export type MessageSent = {
   chatId: ChatId;
   authorId: UserId;
   body: string;
-  sentAt: Date;
+  sentAt: number;
   deliveryStatus: DeliveryStatus;
 };
 export const sendMessage = (
@@ -50,7 +40,7 @@ export const sendMessage = (
   chatId: cmd.chatId,
   authorId: userId,
   body: cmd.body,
-  sentAt: clock.now(),
+  sentAt: clock.now().getTime(),
   deliveryStatus: DeliveryStatus.Pending,
 });
 

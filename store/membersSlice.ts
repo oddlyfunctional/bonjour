@@ -1,6 +1,6 @@
 import type { MemberReadModel } from "@/app/core/contexts/chat/chat";
 import type { UserId } from "@/app/core/core";
-import type { RootState } from "@/store";
+import { createAppSelector } from "@/store/utils";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export type MembersState = {
@@ -29,5 +29,7 @@ export const membersSlice = createSlice({
 export const { memberAdded } = membersSlice.actions;
 export const membersReducer = membersSlice.reducer;
 export const membersSelector = membersSlice.selectSlice;
-export const fullMembersSelector = (state: RootState) =>
-  state.members.order.map((id) => state.members.map[id]);
+export const fullMembersSelector = createAppSelector(
+  membersSelector,
+  (members) => members.order.map((id) => members.map[id]),
+);

@@ -22,7 +22,7 @@ export const NewMessage = ({ currentUserId }: { currentUserId: UserId }) => {
       authorId: currentUserId,
       body: formData.get("body") as string,
       chatId: chat.id,
-      sentAt: new Date(),
+      sentAt: Date.now(),
       deliveryStatus: DeliveryStatus.Pending,
     };
     dispatch(messageSent(message));

@@ -1,5 +1,5 @@
 "use client";
-import { AppStore, makeStore, type RootState } from "@/store";
+import { makeStore, type AppStore, type RootState } from "@/store";
 import { useRef } from "react";
 import { Provider } from "react-redux";
 

@@ -29,9 +29,6 @@ export const makeStore = (preloadedState?: RootState) => {
   });
 };
 
-export type AppStore = ReturnType<typeof makeStore>;
-export type AppDispatch = AppStore["dispatch"];
-
 export const makeListState = <T, K extends string | number>(
   items: Array<T>,
   by: (item: T) => K,
@@ -45,3 +42,6 @@ export const makeListState = <T, K extends string | number>(
 
   return { map, order };
 };
+
+export type AppStore = ReturnType<typeof makeStore>;
+export type AppDispatch = AppStore["dispatch"];

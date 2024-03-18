@@ -1,27 +1,29 @@
 import type { Message } from "@/app/core/contexts/chat/message";
-import type { MessageId } from "@/app/core/core";
-import type { RootState } from "@/store";
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import type { ChatId, MessageId } from "@/app/core/core";
+import { createAppSelector } from "@/store/utils";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
-export type MessagesState = {
-  map: Record<MessageId, Message>;
-  order: Array<MessageId>;
-};
+export type MessagesState = Record<
+  ChatId,
+  {
+    map: Record<MessageId, Message>;
+    order: Array<MessageId>;
+  }
+>;
 
-const initialState: MessagesState = {
-  map: {},
-  order: [],
-};
+const initialState: MessagesState = {};
 
 const addMessage = (state: MessagesState, message: Message) => {
-  state.map[message.id] = message;
-  state.order.push(message.id);
-  state.order.sort((a, b) => {
-    const dateA = state.map[a]?.sentAt?.getTime() || 0;
-    const dateB = state.map[b]?.sentAt?.getTime() || 0;
+  const chat = state[message.chatId] || { map: {}, order: [] };
+  chat.map[message.id] = message;
+  chat.order.push(message.id);
+  chat.order.sort((a, b) => {
+    const dateA = chat.map[a]?.sentAt || 0;
+    const dateB = chat.map[b]?.sentAt || 0;
 
     return dateA - dateB;
   });
+  state[message.chatId] = chat;
 };
 
 export const messagesSlice = createSlice({
@@ -32,8 +34,9 @@ export const messagesSlice = createSlice({
       addMessage(state, action.payload);
     },
     messageReceived: (state, action: PayloadAction<Message>) => {
-      if (action.payload.id in state.map) {
-        state.map[action.payload.id] = action.payload;
+      const { id, chatId } = action.payload;
+      if (chatId in state && id in state[chatId].map) {
+        state[chatId].map[action.payload.id] = action.payload;
       } else {
         addMessage(state, action.payload);
       }
@@ -43,6 +46,10 @@ export const messagesSlice = createSlice({
 
 export const { messageSent, messageReceived } = messagesSlice.actions;
 export const messagesSelector = messagesSlice.selectSlice;
-export const fullMessagesSelector = (state: RootState) =>
-  state.messages.order.map((id) => state.messages.map[id]);
+export const chatMessagesSelector = (chatId: ChatId) =>
+  createAppSelector(
+    messagesSelector,
+    (messages) =>
+      messages[chatId]?.order?.map((id) => messages[chatId].map[id]) || [],
+  );
 export const messagesReducer = messagesSlice.reducer;

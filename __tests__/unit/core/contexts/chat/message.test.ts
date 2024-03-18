@@ -29,13 +29,12 @@ describe("Message", () => {
           clock,
         ),
       ).toStrictEqual({
-        message: {
-          chatId,
-          authorId: userId,
-          body: "some message",
-          sentAt: now,
-          deliveryStatus: DeliveryStatus.Pending,
-        },
+        id: messageId,
+        chatId,
+        authorId: userId,
+        body: "some message",
+        sentAt: now.getTime(),
+        deliveryStatus: DeliveryStatus.Pending,
       });
     });
   });
@@ -50,7 +49,7 @@ describe("Message", () => {
               chatId,
               authorId: userId,
               body: "some message",
-              sentAt: now,
+              sentAt: now.getTime(),
               deliveryStatus: DeliveryStatus.Pending,
             },
           },
@@ -68,7 +67,7 @@ describe("Message", () => {
               chatId,
               authorId: -1,
               body: "some message",
-              sentAt: now,
+              sentAt: now.getTime(),
               deliveryStatus: DeliveryStatus.Pending,
             },
           },
@@ -86,7 +85,7 @@ describe("Message", () => {
               chatId,
               authorId: userId,
               body: "some message",
-              sentAt: now,
+              sentAt: now.getTime(),
               deliveryStatus: DeliveryStatus.Seen,
             },
           },

@@ -15,7 +15,7 @@ export default async function ChatContainer() {
       initialState={{
         currentUser: { account, profile },
         members: { map: {}, order: [] },
-        messages: { map: {}, order: [] },
+        messages: {},
         chats: {
           ...makeListState(chats, (c) => c.id),
           currentChat: null,

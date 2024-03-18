@@ -4,18 +4,15 @@ import { Avatar } from "@/app/components/Avatar";
 import * as Icons from "@/app/components/Icons";
 import { TimeAgo } from "@/app/components/TimeAgo";
 import type { MemberReadModel } from "@/app/core/contexts/chat/chat";
-import {
-  DeliveryStatus,
-  Message,
-  schema,
-} from "@/app/core/contexts/chat/message";
+import { DeliveryStatus, Message } from "@/app/core/contexts/chat/message";
 import type { UserId } from "@/app/core/core";
 import { useAppDispatch, useAppSelector, useChannel } from "@/app/lib/hooks";
 import { currentChatSelector } from "@/store/chatsSlice";
 import { membersSelector } from "@/store/membersSlice";
-import { fullMessagesSelector, messageReceived } from "@/store/messagesSlice";
+import { chatMessagesSelector, messageReceived } from "@/store/messagesSlice";
 import { useTranslations } from "next-intl";
 import { useRef } from "react";
+import { z, type ZodType } from "zod";
 
 const Status = ({ deliveryStatus }: { deliveryStatus: DeliveryStatus }) => {
   switch (deliveryStatus) {
@@ -115,20 +112,26 @@ const renderMessages = (
   return children;
 };
 
+export const messageSchema: ZodType<Message> = z.object({
+  id: z.string(),
+  chatId: z.number(),
+  authorId: z.number(),
+  body: z.string(),
+  sentAt: z.number(),
+  deliveryStatus: z.nativeEnum(DeliveryStatus),
+});
+
 export const Messages = ({ currentUserId }: { currentUserId: UserId }) => {
   const t = useTranslations("CHAT");
   const chat = useAppSelector(currentChatSelector);
   if (!chat) throw new Error("This component cannot be used without a chat");
-  const messages = useAppSelector(fullMessagesSelector);
+  const messages = useAppSelector(chatMessagesSelector(chat.id));
   const members = useAppSelector(membersSelector);
   const dispatch = useAppDispatch();
   const chatBottomRef = useRef<HTMLDivElement>(null);
   useChannel(`chat:${chat.id}`, (channel) => {
     channel.on("message", (event) => {
-      const validatedMessage = schema.safeParse({
-        ...event.message,
-        sentAt: new Date(Date.parse(event.message.sentAt)),
-      });
+      const validatedMessage = messageSchema.safeParse(event.message);
       if (validatedMessage.success) {
         dispatch(messageReceived(validatedMessage.data));
         chatBottomRef.current && chatBottomRef.current.scrollIntoView();

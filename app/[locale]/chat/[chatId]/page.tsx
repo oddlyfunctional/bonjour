@@ -26,7 +26,7 @@ export default async function Chat({
           ...makeListState(chats, (c) => c.id),
           currentChat: chatId,
         },
-        messages: makeListState(messages, (m) => m.id),
+        messages: { [chatId]: makeListState(messages, (m) => m.id) },
         members: makeListState(members, (m) => m.userId),
         drawer: { open: false, content: null },
       }}

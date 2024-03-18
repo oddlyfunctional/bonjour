@@ -26,7 +26,7 @@ describe("messageServices", () => {
     chatId: chatId,
     authorId: userId,
     body: "some message",
-    sentAt: now,
+    sentAt: now.getTime(),
     deliveryStatus: DeliveryStatus.Sent,
   };
 
@@ -52,7 +52,7 @@ describe("messageServices", () => {
         chatId: chatId,
         authorId: userId,
         body: "some message",
-        sentAt: now,
+        sentAt: now.getTime(),
         deliveryStatus: DeliveryStatus.Pending,
       });
     });
